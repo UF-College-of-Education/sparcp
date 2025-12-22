@@ -12,7 +12,6 @@ import {
   ChevronRight,
   Award
 } from "lucide-react";
-import { StatusBar } from "./StatusBar";
 
 interface NavigationProps {
     currentView: string;
@@ -85,12 +84,6 @@ const navigationItems = [
             })}
           </nav>
         </div>
-  
-        {!isCollapsed && (
-          <div className="p-4 border-t mt-auto">
-            <StatusBar />
-          </div>
-        )}
   
         <Button
           variant="ghost"

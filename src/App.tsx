@@ -1,20 +1,11 @@
 import { useState } from "react";
 import { Navigation } from "./components/Navigation";
 import { Dashboard } from "./components/Dashboard";
-import { AvatarChat } from "./components/AvatarChat";
 import { LearningResources } from "./components/LearningResources";
-import { StartNewSession } from "./components/StartNewSession";
 
 export default function App() {
   const [currentView, setCurrentView] = useState("dashboard");
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
-
-  const handleStartSession = (scenarioId: string, focusAreas: string[] = []) => {
-    setSelectedScenarioId(scenarioId);
-      setSelectedFocusAreas(focusAreas);  
-    setCurrentView("practice");
-  };
 
   const handleBackToDashboard = () => {
     setCurrentView("dashboard");
@@ -24,20 +15,7 @@ export default function App() {
   const renderCurrentView = () => {
     switch (currentView) {
       case "dashboard":
-        return <Dashboard onStartNewSession={() => setCurrentView("start-session")} />;
-      case "start-session":
-        return (
-          <StartNewSession 
-            onBack={handleBackToDashboard}
-            onStartSession={handleStartSession}
-          />
-        );
-      case "practice":
-        return <AvatarChat             
-        selectedScenarioId={selectedScenarioId}
-        selectedFocus={selectedFocusAreas}    
-        
-        />;
+        return <Dashboard/>;
         
       case "resources":
         return <LearningResources />;
