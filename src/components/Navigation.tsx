@@ -24,7 +24,7 @@ const navigationItems = [
     { id: "practice", label: "AI Practice", icon: MessageCircle },
     { id: "unity", label: "Unity Practice", icon: Gamepad2 },
     { id: "resources", label: "Learning Resources", icon: BookOpen },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ];
   
