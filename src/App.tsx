@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Navigation } from "./components/Navigation";
-import { Dashboard } from "./components/Dashboard";
-import { LearningResources } from "./components/LearningResources";
+import { Dashboard } from "./pages/Dashboard";
+import { LearningResources } from "./pages/LearningResources";
+import { Reports } from "./pages/Reports";
 
 export default function App() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -9,7 +10,6 @@ export default function App() {
 
   const handleBackToDashboard = () => {
     setCurrentView("dashboard");
-
   };
 
   const renderCurrentView = () => {
@@ -19,18 +19,8 @@ export default function App() {
         
       case "resources":
         return <LearningResources />;
-      case "analytics":
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-semibold mb-4">
-              Analytics
-            </h1>
-            <p className="text-muted-foreground">
-              Detailed analytics and progress tracking coming
-              soon...
-            </p>
-          </div>
-        );
+      case "reports":
+        return <Reports />;
       case "settings":
         return (
           <div className="p-6">
