@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+main {
+  width: calc(100% - 16rem);
+  height: 100vh;
+  overflow: scroll;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
