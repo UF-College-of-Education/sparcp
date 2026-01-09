@@ -24,7 +24,7 @@ const recentSessions = [
 
 export function Dashboard( { onStartNewSession }: DashboardProps) {
   return (
-    <div className="space-y-6 p-6">
+    <main className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -142,6 +142,8 @@ export function Dashboard( { onStartNewSession }: DashboardProps) {
           </Button>
         </div>
       </Card>
-    </div>
+
+      
+    </main>
   );
 }
