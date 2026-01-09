@@ -21,36 +21,6 @@ export default function App() {
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
 
   const handleBackToDashboard = () => {
-    setCurrentView("dashboard");
-  };
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case "dashboard":
-        return <Dashboard/>;
-        
-      case "unity":
-        return <SparcUnityPage />;
-        
-      case "resources":
-        return <LearningResources />;
-      case "reports":
-        return <Reports />;
-      case "settings":
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-semibold mb-4">
-              Settings
-            </h1>
-            <p className="text-muted-foreground">
-              Application settings and preferences coming
-              soon...
-            </p>
-          </div>
-        );
-      default:
-        return <Dashboard onStartNewSession={() => setCurrentView("start-session")} />;
-    }
   };
 
   return (
