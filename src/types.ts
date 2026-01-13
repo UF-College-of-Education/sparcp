@@ -28,7 +28,7 @@ export interface ResourceListing {
     id: number;
     title: string;
     description?: string; // Optional no default
-    url: string; // Optional
+    url: string;
     type: "link" | "document";
     category: string;
 }
