@@ -32,3 +32,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Unity WebGL build outputs: keep loader/framework in git, ignore large binaries
+public/unity/Build/*.wasm
+public/unity/Build/*.data
