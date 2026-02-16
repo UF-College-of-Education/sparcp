@@ -44,7 +44,9 @@ SPARC-P (Simulated Patient Avatar for Realistic Clinical Practice) is a clinical
    ```
 
 5. **Open your browser**
-   Navigate to `http://localhost:5173`
+   - Navigate to **`https://localhost:5173`** (HTTPS is used so the browser allows microphone access)
+   - If you see a certificate warning, click **Advanced** → **Proceed to localhost (unsafe)** to continue
+   - When Unity asks for microphone permission, click **Allow** so the app can list your mics and use speech recognition
 
 ## 🔑 API Setup
 
@@ -193,6 +195,16 @@ VITE_ELEVENLABS_MAYA_VOICE_ID=EXAVITQu4vr4xnSDxMaL
    - Check Navigator API connection in status bar
    - Verify API key permissions
    - Check network connectivity
+
+4. **"Microphone permission is required" / No microphones in Unity**
+   - Use **https://localhost:5173** (not http) so the browser treats the page as secure
+   - Accept the self-signed certificate warning (Advanced → Proceed to localhost)
+   - When the browser prompts for microphone access, click **Allow**
+   - Restart the Unity scene or refresh the page if you granted permission after loading
+
+5. **POST .../chat/completions 401 (Unauthorized)**
+   - Copy `.env.example` to `.env` and set `VITE_NAVIGATOR_API_KEY` to your real API key
+   - Restart the dev server after changing `.env`
 
 ### Status Indicators
 

@@ -4,6 +4,7 @@ import { Dashboard } from "./components/Dashboard";
 import { AvatarChat } from "./components/AvatarChat";
 import { LearningResources } from "./components/LearningResources";
 import { StartNewSession } from "./components/StartNewSession";
+import SparcUnityPage from "./components/SparcUnityPage";
 
 export default function App() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -38,6 +39,9 @@ export default function App() {
         selectedFocus={selectedFocusAreas}    
         
         />;
+        
+      case "unity":
+        return <SparcUnityPage />;
         
       case "resources":
         return <LearningResources />;

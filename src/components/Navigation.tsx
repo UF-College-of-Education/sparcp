@@ -10,7 +10,8 @@ import {
   Settings, 
   User,
   ChevronRight,
-  Award
+  Award,
+  Gamepad2
 } from "lucide-react";
 import { StatusBar } from "./StatusBar";
 
@@ -22,6 +23,7 @@ interface NavigationProps {
 const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "practice", label: "AI Practice", icon: MessageCircle },
+    { id: "unity", label: "Unity Practice", icon: Gamepad2 },
     { id: "resources", label: "Learning Resources", icon: BookOpen },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
