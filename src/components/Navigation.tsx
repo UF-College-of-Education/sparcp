@@ -9,9 +9,11 @@ import {
   User,
   ChevronRight,
   Award,
-  House
+  House,
+  LogOut
 } from "lucide-react";
 import { NavLink } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 const navigationItems = [
   { id: "home", label: "Home", icon: House, route: "/", submenu: false },
@@ -23,6 +25,7 @@ const navigationItems = [
 
 export function Navigation() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const {logout} = useAuth();
 
   return (
     <div className={`bg-card border-r transition-all duration-300 md:h-screen ${isCollapsed ? "w-16" : "w-64"}`}>
@@ -74,8 +77,19 @@ export function Navigation() {
               
             );
           })}
+
+            <li>
+              <button
+                className="text-sm mt-6 flex items-center p-3 hover:bg-gray-100 rounded-md"
+                onClick={logout}
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="pl-5">Logout</span>
+              </button>
+            </li>
           </ul>
         </nav>
+                
       </div>
     </div>
   );
