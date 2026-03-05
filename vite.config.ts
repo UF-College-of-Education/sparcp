@@ -4,8 +4,9 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import path from 'node:path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react(), basicSsl()],
+// BasicSsl will only load on vite dev 
+export default defineConfig(({ command }) => ({
+  plugins: [react(), ...(command === 'serve' ? [basicSsl()] : [])],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -13,8 +14,6 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.txt'],
   server: {
-    // HTTPS required for microphone/camera permission in some browsers
-    https: true,
     port: 5173,
   },
-})
+}))

@@ -1,7 +1,7 @@
-import { Card } from "./ui/card";
-import { Progress } from "./ui/progress";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+import { Card } from "../components/ui/card";
+import { Progress } from "../components/ui/progress";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
 import { MessageCircle, BookOpen, BarChart3, Clock, Award, User } from "lucide-react";
 
 interface DashboardProps {
@@ -24,7 +24,7 @@ const recentSessions = [
 
 export function Dashboard( { onStartNewSession }: DashboardProps) {
   return (
-    <div className="space-y-6 p-6">
+    <main className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -138,10 +138,12 @@ export function Dashboard( { onStartNewSession }: DashboardProps) {
           </Button>
           <Button variant="outline" className="h-20 flex-col gap-2">
             <BarChart3 className="w-6 h-6" />
-            <span>Detailed Analytics</span>
+            <span>Detailed Reports</span>
           </Button>
         </div>
       </Card>
-    </div>
+
+      
+    </main>
   );
 }

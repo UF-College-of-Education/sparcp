@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+main {
+  width: calc(100% - 16rem);
+  height: 100vh;
+  overflow: scroll;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -24,6 +30,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    /* COLORS */
+    --black: "#000";
+    --gray: "#aaaaaa";
   }
 
   .dark {

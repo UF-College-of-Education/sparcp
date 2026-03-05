@@ -1,88 +1,56 @@
-import { useState } from "react";
 import { Navigation } from "./components/Navigation";
-import { Dashboard } from "./components/Dashboard";
-import { AvatarChat } from "./components/AvatarChat";
-import { LearningResources } from "./components/LearningResources";
-import { StartNewSession } from "./components/StartNewSession";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router";
+import { Dashboard } from "./pages/Dashboard";
+import { Reports } from "./pages/Reports";
+import { LearningResources } from "./pages/LearningResources";
+import { Login } from "./pages/Login";
+import { Home } from "./pages/Home";
+import { Training } from "./pages/Training";
+import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./components/SparcUnityPage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-export default function App() {
-  const [currentView, setCurrentView] = useState("dashboard");
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
-  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
+}
 
-  const handleStartSession = (scenarioId: string, focusAreas: string[] = []) => {
-    setSelectedScenarioId(scenarioId);
-      setSelectedFocusAreas(focusAreas);  
-    setCurrentView("practice");
-  };
-
-  const handleBackToDashboard = () => {
-    setCurrentView("dashboard");
-
-  };
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case "dashboard":
-        return <Dashboard onStartNewSession={() => setCurrentView("start-session")} />;
-      case "start-session":
-        return (
-          <StartNewSession 
-            onBack={handleBackToDashboard}
-            onStartSession={handleStartSession}
-          />
-        );
-      case "practice":
-        return <AvatarChat             
-        selectedScenarioId={selectedScenarioId}
-        selectedFocus={selectedFocusAreas}    
-        
-        />;
-        
-      case "unity":
-        return <SparcUnityPage />;
-        
-      case "resources":
-        return <LearningResources />;
-      case "analytics":
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-semibold mb-4">
-              Analytics
-            </h1>
-            <p className="text-muted-foreground">
-              Detailed analytics and progress tracking coming
-              soon...
-            </p>
-          </div>
-        );
-      case "settings":
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-semibold mb-4">
-              Settings
-            </h1>
-            <p className="text-muted-foreground">
-              Application settings and preferences coming
-              soon...
-            </p>
-          </div>
-        );
-      default:
-        return <Dashboard onStartNewSession={() => setCurrentView("start-session")} />;
-    }
-  };
+/**
+ * Layout is used because useLocation can't be called
+ * directly in App. It needs the context from the
+ * BrowserRouter component to fetch current route.
+ */
+function Layout() {
+  const location = useLocation();
+  const showNav = location.pathname !== "/login";
 
   return (
-    <div className="flex h-screen bg-background">
-      <Navigation
-        currentView={currentView}
-        onViewChange={setCurrentView}
-      />
-      <main className="flex-1 overflow-auto">
-        {renderCurrentView()}
-      </main>
-    </div>
+    <>
+      {showNav && <Navigation />}
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+        <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
+      </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
