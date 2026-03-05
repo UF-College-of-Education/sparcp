@@ -3,6 +3,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
   useLocation,
 } from "react-router";
 import { Dashboard } from "./pages/Dashboard";
@@ -13,10 +14,16 @@ import { Home } from "./pages/Home";
 import { Training } from "./pages/Training";
 import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./components/SparcUnityPage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
+}
 
 /**
  * Layout is used because useLocation can't be called
- * directly in App. It needs the context from the 
+ * directly in App. It needs the context from the
  * BrowserRouter component to fetch current route.
  */
 function Layout() {
@@ -27,12 +34,12 @@ function Layout() {
     <>
       {showNav && <Navigation />}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/training" element={<Training />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+        <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
       </Routes>
     </>
   );
@@ -40,8 +47,10 @@ function Layout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
