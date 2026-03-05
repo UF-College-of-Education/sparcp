@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { Navigation } from "./components/Navigation";
 import {
   BrowserRouter,
   Routes,
   Route,
-  Link,
-  useNavigate,
-  Navigate
+  useLocation,
 } from "react-router";
 import { Dashboard } from "./pages/Dashboard";
 import { Reports } from "./pages/Reports";
@@ -17,23 +14,34 @@ import { Training } from "./pages/Training";
 import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./components/SparcUnityPage";
 
-export default function App() {
-  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>([]);
-
-  const handleBackToDashboard = () => {
-  };
+/**
+ * Layout is used because useLocation can't be called
+ * directly in App. It needs the context from the 
+ * BrowserRouter component to fetch current route.
+ */
+function Layout() {
+  const location = useLocation();
+  const showNav = location.pathname !== "/login";
 
   return (
-    <BrowserRouter>
-      <Navigation />
+    <>
+      {showNav && <Navigation />}
       <Routes>
-        <Route path="/" element={ <Home />} />
-        <Route path="/dashboard" element={ <Dashboard />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/training" element={<Training />} />
         <Route path="/login" element={<Login />} />
       </Routes>
-    </BrowserRouter>      
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
