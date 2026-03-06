@@ -11,9 +11,8 @@ import { Reports } from "./pages/Reports";
 import { LearningResources } from "./pages/LearningResources";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
-import { Training } from "./pages/Training";
 import { Resources } from "./pages/Resources";
-import SparcUnityPage from "./components/SparcUnityPage";
+import SparcUnityPage from "./pages/SparcUnityPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,7 +38,7 @@ function Layout() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
-        <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
+        <Route path="/training" element={<ProtectedRoute><SparcUnityPage /></ProtectedRoute>} />
       </Routes>
     </>
   );
