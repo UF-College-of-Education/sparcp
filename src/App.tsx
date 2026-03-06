@@ -8,7 +8,6 @@ import {
 } from "react-router";
 import { Dashboard } from "./pages/Dashboard";
 import { Reports } from "./pages/Reports";
-import { LearningResources } from "./pages/LearningResources";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
 import { Resources } from "./pages/Resources";
