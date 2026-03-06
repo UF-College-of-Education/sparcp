@@ -32,3 +32,21 @@ export interface ResourceListing {
     type: "link" | "document";
     category: string;
 }
+
+/**
+ * Messages received FROM Unity (iframe to React)
+ */
+export type InboundUnityMessage =
+  | { type: "UNITY_READY"; data: { ready: boolean; timestamp: string } }
+  | { type: "UNITY_SESSION_EVENT"; data: any }
+  | { type: "UNITY_ANALYTICS_EVENT"; data: { eventName: string; eventData: any } }
+  | { type: "UNITY_ERROR"; data: { errorType: string; errorMessage: string } }
+  | { type: "UNITY_REQUEST_DATA"; data: { requestType: string; requestId: string; parameters: any } }
+  | { type: string; data: any }; // fallback for unknown Unity messages
+
+/**
+ * Messages sent TO Unity (React to iframe)
+ */
+export type OutboundUnityMessage =
+  | { type: "REACT_TO_UNITY_SESSION"; data: { sessionData: Record<string, any> } }
+  | { type: "REACT_TO_UNITY_COMMAND"; data: { command: string } };

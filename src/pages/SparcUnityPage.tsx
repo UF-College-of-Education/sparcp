@@ -1,12 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-
-type UnityMessage =
-  | { type: "UNITY_READY"; data: { ready: boolean; timestamp: string } }
-  | { type: "UNITY_SESSION_EVENT"; data: any }
-  | { type: "UNITY_ANALYTICS_EVENT"; data: { eventName: string; eventData: any } }
-  | { type: "UNITY_ERROR"; data: { errorType: string; errorMessage: string } }
-  | { type: "UNITY_REQUEST_DATA"; data: { requestType: string; requestId: string; parameters: any } }
-  | { type: string; data: any }; // fallback
+import type { InboundUnityMessage, OutboundUnityMessage } from "../types";
+import useUnityBridge from "../hooks/useUnityBridge";
+// import { pauseSession, resumeSession, requestCurrentSession } from "../lib/unityUtils";
 
 /** Request mic/camera in the parent so the same-origin Unity iframe can use them. */
 async function requestMediaInParent(): Promise<{ ok: boolean; error?: string }> {
@@ -24,40 +19,11 @@ async function requestMediaInParent(): Promise<{ ok: boolean; error?: string }> 
 
 const SparcUnityPage: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const postToUnityRef = useRef<((payload: OutboundUnityMessage) => void) | null>(null);
   const [unityReady, setUnityReady] = useState(false);
   const [lastEvent, setLastEvent] = useState<string>("");
   const [mediaStatus, setMediaStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [mediaError, setMediaError] = useState<string | null>(null);
-
-  // Send a message TO Unity (inside the iframe)
-  const postToUnity = useCallback((payload: any) => {
-    const iframe = iframeRef.current;
-    if (!iframe || !iframe.contentWindow) return;
-
-    iframe.contentWindow.postMessage(payload, window.location.origin);
-  }, []);
-
-  // Example helpers for parent → Unity commands
-  const pauseSession = () => {
-    postToUnity({
-      type: "REACT_TO_UNITY_COMMAND",
-      data: { command: "PauseGame" },
-    });
-  };
-
-  const resumeSession = () => {
-    postToUnity({
-      type: "REACT_TO_UNITY_COMMAND",
-      data: { command: "ResumeGame" },
-    });
-  };
-
-  const requestCurrentSession = () => {
-    postToUnity({
-      type: "REACT_TO_UNITY_COMMAND",
-      data: { command: "GetSessionStatus" },
-    });
-  };
 
   const handleRequestMedia = useCallback(async () => {
     setMediaStatus("requesting");
@@ -83,65 +49,57 @@ const SparcUnityPage: React.FC = () => {
   }, []);
 
   // Handle messages FROM Unity (iframe → React)
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent<UnityMessage>) => {
-      // Security: only accept messages from same origin
-      if (event.origin !== window.location.origin) return;
-      if (!event.data || typeof event.data !== "object") return;
+  const handleMessage = useCallback((msg: InboundUnityMessage) => {
+    const { type, data } = msg;
+    switch (type) {
+      case "UNITY_READY":
+        setUnityReady(Boolean((data as any)?.ready));
+        setLastEvent("UNITY_READY");
+        break;
 
-      const { type, data } = event.data;
-      if (!type) return;
+      case "UNITY_SESSION_EVENT":
+        // Session progress / summary from Unity
+        console.log("UNITY_SESSION_EVENT", data);
+        setLastEvent("UNITY_SESSION_EVENT");
+        // You can optionally push this to React-side Firebase if desired
+        break;
 
-      switch (type) {
-        case "UNITY_READY":
-          setUnityReady(Boolean((data as any)?.ready));
-          setLastEvent("UNITY_READY");
-          break;
+      case "UNITY_ANALYTICS_EVENT":
+        console.log("UNITY_ANALYTICS_EVENT", data);
+        setLastEvent(`UNITY_ANALYTICS_EVENT: ${(data as any)?.eventName ?? ""}`);
+        break;
 
-        case "UNITY_SESSION_EVENT":
-          // Session progress / summary from Unity
-          console.log("UNITY_SESSION_EVENT", data);
-          setLastEvent("UNITY_SESSION_EVENT");
-          // You can optionally push this to React-side Firebase if desired
-          break;
+      case "UNITY_ERROR":
+        console.error("UNITY_ERROR", data);
+        setLastEvent(`UNITY_ERROR: ${(data as any)?.errorType ?? ""}`);
+        break;
 
-        case "UNITY_ANALYTICS_EVENT":
-          console.log("UNITY_ANALYTICS_EVENT", data);
-          setLastEvent(`UNITY_ANALYTICS_EVENT: ${(data as any)?.eventName ?? ""}`);
-          break;
-
-        case "UNITY_ERROR":
-          console.error("UNITY_ERROR", data);
-          setLastEvent(`UNITY_ERROR: ${(data as any)?.errorType ?? ""}`);
-          break;
-
-        case "UNITY_REQUEST_DATA":
-          // Unity asking React for extra data (e.g. SSO profile, Firebase token, etc.)
-          console.log("UNITY_REQUEST_DATA", data);
-          // Example: respond with minimal stub; wire up real data later
-          if ((data as any)?.requestType === "USER_PROFILE") {
-            postToUnity({
-              type: "REACT_TO_UNITY_SESSION",
-              data: {
-                sessionData: {
-                  requestId: (data as any).requestId,
-                  profile: { role: "clinician", source: "react-stub" },
-                },
+      case "UNITY_REQUEST_DATA":
+        // Unity asking React for extra data (e.g. SSO profile, Firebase token, etc.)
+        console.log("UNITY_REQUEST_DATA", data);
+        // Example: respond with minimal stub; wire up real data later
+        if ((data as any)?.requestType === "USER_PROFILE") {
+          postToUnityRef.current?.({
+            type: "REACT_TO_UNITY_SESSION",
+            data: {
+              sessionData: {
+                requestId: (data as any).requestId,
+                profile: { role: "clinician", source: "react-stub" },
               },
-            });
-          }
-          break;
+            },
+          });
+        }
+        break;
 
-        default:
-          // Unknown messages can be logged for debugging
-          console.log("Unknown Unity message", event.data);
-          break;
-      }
-    };
+      default:
+        // Unknown messages can be logged for debugging
+        console.log("Unknown Unity message", msg);
+        break;
+    }
+  }, []);
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [postToUnity]);
+  const postToUnity = useUnityBridge(iframeRef, handleMessage);
+  postToUnityRef.current = postToUnity;
 
   return (
     <div style={{ height: "100%", overflow: "hidden", background: "#111", display: "flex", flexDirection: "column" }}>
