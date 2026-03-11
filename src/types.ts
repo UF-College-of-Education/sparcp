@@ -1,4 +1,15 @@
-// Page: Resources 
+/**
+ * USER AND AUTH 
+ */
+export type User = {
+    username: string;
+    // Shibboleth attributes (e.g. email, role) will be added here
+};
+
+
+/**
+ * Resources Page
+ */
 export interface Module {
     id: string;
     letter: string;
