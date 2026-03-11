@@ -9,7 +9,7 @@ export default function useUnityBridge(
     // LISTEN FOR MESSAGES FROM UNITY
     // Ref keeps the listener stable while always calling the latest onMessage
     const onMessageRef = useRef(onMessage);
-    useEffect(() => { onMessageRef.current = onMessage; });
+    useEffect(() => { onMessageRef.current = onMessage; }, [onMessage]);
 
     useEffect(() => {
         const handler = (event: MessageEvent<InboundUnityMessage>) => {
