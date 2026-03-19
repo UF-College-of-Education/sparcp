@@ -7,6 +7,30 @@ main {
   height: 100vh;
   overflow: scroll;
 }
+:root {
+  --primary-yellow: #FFB850;
+  --primary-blue: #2855f6;
+  --primary-white: #F7FFFF;
+  --primary-black: #030213;
+  --off-white: #f2f2f2;
+}
+
+.yellow {
+  background-color: var(--primary-yellow);
+}
+
+.blue {
+  background-color: var(--primary-blue);
+}
+
+.white {
+  background-color: var(--primary-whiter);
+}
+
+.off-white {
+  background-color: var(--off-white);
+}
+
 
 @layer base {
   :root {
@@ -29,10 +53,12 @@ main {
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
+    --yellow: 36 100% 66%;
     --radius: 0.5rem;
     /* COLORS */
-    --black: "#000";
+    --black: "#030213";
     --gray: "#aaaaaa";
+    --blue: "#2855f6";
     /* FONTS*/
     --font-sans: 'Inter';
   }
