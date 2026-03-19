@@ -33,6 +33,8 @@ main {
     /* COLORS */
     --black: "#000";
     --gray: "#aaaaaa";
+    /* FONTS*/
+    --font-sans: 'Inter';
   }
 
   .dark {
