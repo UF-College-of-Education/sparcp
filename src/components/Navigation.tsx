@@ -80,6 +80,9 @@ export function Navigation() {
               </li>
             </ul>
           </nav>
+
+        <ClearGuide isCollapsed={isCollapsed}></ClearGuide>
+        
         <MenuTrayControlButton
           handleClick={() => setIsCollapsed(prev => !prev)}
           isCollapsed={isCollapsed}

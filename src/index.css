@@ -93,3 +93,7 @@ main {
     @apply bg-background text-foreground;
   }
 }
+
+.clearGuideContentContainer {
+  height: 75vh;
+}
