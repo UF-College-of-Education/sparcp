@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 main {
-  width: calc(100% - 16rem);
   height: 100vh;
   overflow: scroll;
 }
