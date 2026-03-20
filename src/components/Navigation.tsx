@@ -1,17 +1,13 @@
 import { useState } from "react";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { 
   MenuIcon,
   MessageCircle, 
   BookOpen, 
   BarChart3, 
   Settings, 
-  User,
   ChevronRight,
-  Award,
   House,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuth } from "../context/AuthContext";
