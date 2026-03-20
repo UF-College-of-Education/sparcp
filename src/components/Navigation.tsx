@@ -41,12 +41,14 @@ export function Navigation() {
           >
             <MenuIcon className={`text-primary-foreground transition-all duration-300 h-6 delay-200 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} strokeWidth={3} />
           </div>
-          {!isCollapsed && (
-            <div>
-              <h2 className="font-semibold">SPARC-P</h2>
-              <p className="text-xs text-muted-foreground">Communication Training</p>
-            </div>
-          )}
+          
+          <div className={`overflow-hidden transition-all duration-300  ${isCollapsed ? 'w-0 h-0' : 'w-auto h-auto'}`}>
+            <p><img 
+              alt="SPARC-P Logo"
+              className="w-44 pt-4 pl-2"
+              src="src/assets/SPARC_Logo_BlueMulticolor.png"
+            /></p>
+          </div>
         </div>
       </div>
 
