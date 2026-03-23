@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import sparcLogo from "../assets/SPARC_Logo_BlueMulticolor.png";
 import { 
   MenuIcon,
   MessageCircle, 
@@ -49,7 +50,7 @@ export function Navigation() {
             <p><img 
               alt="SPARC-P Logo"
               className="w-44 pt-4 pl-2"
-              src="src/assets/SPARC_Logo_BlueMulticolor.png"
+              src={sparcLogo}
             /></p>
           </div>
         </div>
