@@ -5,7 +5,6 @@ import {
   MessageCircle, 
   BookOpen, 
   BarChart3, 
-  Settings, 
   ChevronRight,
   House,
   LogOut,
@@ -20,7 +19,6 @@ const navigationItems = [
   { id: "training", label: "Training", icon: MessageCircle, route: "/training", submenu: true },
   { id: "resources", label: "Resources", icon: BookOpen, route: "/resources", submenu: false },
   { id: "progress", label: "My Progress", icon: BarChart3, route: "/reports", submenu: false },
-  { id: "settings", label: "Settings", icon: Settings, route: "", submenu: false },
 ];
 
 export function Navigation() {
