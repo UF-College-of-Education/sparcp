@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   MenuIcon,
   MessageCircle, 
@@ -25,6 +25,13 @@ const navigationItems = [
 export function Navigation() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const {logout} = useAuth();
+
+  // Collapse menu automatically on training page
+  useEffect(()=>{
+      if( location.pathname == '/training') setIsCollapsed(true);
+    },
+    [location.pathname]
+  );
 
   return (
     <div className={`bg-card relative border-r transition-all duration-300 md:h-screen ${isCollapsed ? "w-16 " : "w-64"}`}>
