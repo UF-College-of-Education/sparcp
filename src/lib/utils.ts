@@ -47,7 +47,6 @@ export function processVimeoEmbedCode(videoEmbedCode: string): {
     // Hash can be a path segment or the "h" query param
     hash = pathMatch?.[2] ?? url.searchParams.get("h");
 
-    console.log( { baseUrl, videoId, hash, title } );
   }
 
   return { baseUrl, videoId, hash, title };
