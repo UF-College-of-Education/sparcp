@@ -172,7 +172,7 @@ If deploying to a new URL (e.g., production domain, preview branches):
 
 The Unity build is loaded via an iframe in the React application:
 
-- **Component**: `src/components/SparcUnityPage.tsx`
+- **Component**: `src/components/pages/SparcUnityPage.tsx`
 - **Unity Page**: `public/unity/index.html` (served at `/unity/index.html`)
 - **Communication**: PostMessage API for React ↔ Unity messaging
 
@@ -184,6 +184,34 @@ The iframe is configured with:
   allow="microphone; camera; fullscreen"
 />
 ```
+
+The React App contains a messaging system for sending messages to and receiving messages from the Unity app. 
+
+### Message from Unity to React
+
+On the SparcUnityPage component, the handleMessage callback is set up to handle incoming message with the following Syntax:
+
+```{ type: "UNITY_MSG_TYPE_HERE"; data: { payload } }```
+
+Currently it is set up to handle the following events:
+
+* UNITY_READY
+* UNITY_SESSION_EVENT
+* UNITY_ANALYTICS_EVENT
+* UNITY_ERROR
+* UNITY_REQUEST_DATA
+
+You can see info about the expected payload in the `src/types.ts` file under theIncomingUnityMessages type. If adding a new type of message, you will need to add a new case to the handleMessage callback and add the expected data shape as a clause in the IncomingUnityMessages type.
+
+### Message From React to Unity
+
+Messages to the Unity app are sent via the custom useUnityBridge hook. This hook expects a reference to the iframe containing the Unity app in React and a handler function to call when messages are received.
+
+In the SparcUnityPage, we bind the Unity bridge to a postToUnity variable. You can then send messages to Unity by invoking postToUnity(). This value is what gets passed to Unity. Just be sure only to invoke it after line 102 where it's defined.
+
+``` postToUnity( message ) ```
+
+Like with the inbound messages, the message should follow the format defined in the OutboundUnityMessage type in `src/types.ts`. you should update the OutboundUnityMessage type definition according to fit the data you want to send. 
 
 ## Troubleshooting
 
