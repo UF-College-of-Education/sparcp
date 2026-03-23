@@ -1,33 +1,14 @@
-import { Button } from "../components/ui/button";
 import { useState } from "react";
 import Placeholder1 from "../../src/assets/placeholder-1.png";
 import Placeholder2 from "../../src/assets/placeholder-2.png";
 import Placeholder3 from "../../src/assets/placeholder-3.png";
+import { WelcomeNewUser } from "../components/home/WelcomeNewUser";
 
 export function Home() {
-    const [userName, setUserName] = useState("Clinician")
-
-    // Probably hard coding the text for now. We can figure out how to make it editable later.
 
     return (
         <main className="">
-            <section className="sparc-welcome mt-6 space-y-6 p-12 pr-20">
-                <h1 className="text-4xl font-semibold">Welcome, {userName}!</h1>
-
-            </section>
-
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-20 space-y-6 p-12 pr-20 pb-10">
-                <div className="sparc-column">
-                    <h2 className="text-2xl mb-4 font-semibold">About the Training</h2>
-                    <p className="mb-4">This training uses an AI avatar to help you practice using the CLEAR model to recommend the HPV vaccine. There will be two types of training sessions. First, you will complete the a guided training session where you will practice specific parts of the CLEAR model separately. Then in the Booster session, you will practice a full conversation with an AI patient.</p>
-                    <Button className="bg-black">Start the Training</Button>
-                </div>
-
-                <div className="sparc-column2 border-2 border-black aspect-video p-6">
-                    <p className="">Video Here</p>
-                    <iframe src="" title="SPARC Training Welcome Video"></iframe>
-                </div>
-            </section>
+            <WelcomeNewUser />
 
             <section className="bg-gray-100 space-y-6 p-12 pr-20">
                 <div>
