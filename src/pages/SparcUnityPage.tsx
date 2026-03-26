@@ -102,58 +102,62 @@ const SparcUnityPage: React.FC = () => {
   postToUnityRef.current = postToUnity;
 
   return (
-    <div style={{ height: "100%", overflow: "hidden", background: "#111", display: "flex", flexDirection: "column" }}>
-      {/* Request mic/camera from parent so same-origin Unity iframe can use them */}
-      {mediaStatus !== "granted" && (
-        <div
-          style={{
-            flexShrink: 0,
-            padding: "10px 16px",
-            background: mediaStatus === "denied" ? "#4a1a1a" : "#1a2a3a",
-            color: "#eee",
-            fontSize: 14,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          {mediaStatus === "idle" && (
-            <>
-              <span>Unity needs microphone (and optionally camera) access. Click to allow for this site.</span>
-              <button
-                type="button"
-                onClick={handleRequestMedia}
-                style={{ padding: "6px 14px", cursor: "pointer", fontWeight: 600 }}
-              >
-                Enable microphone & camera
-              </button>
-            </>
-          )}
-          {mediaStatus === "requesting" && <span>Requesting access… Check the browser prompt.</span>}
-          {mediaStatus === "denied" && (
-            <>
-              <span>Access denied or unavailable. {mediaError && `(${mediaError})`}</span>
-              <button type="button" onClick={handleRequestMedia} style={{ padding: "6px 14px", cursor: "pointer" }}>
-                Try again
-              </button>
-            </>
-          )}
+    <div className="relative w-full h-page z-0">
+      <div
+        className="absolute top-0 left-0 w-full" 
+        style={{ height: "100%", overflow: "hidden", background: "#111", display: "flex", flexDirection: "column" }}>
+        {/* Request mic/camera from parent so same-origin Unity iframe can use them */}
+        {mediaStatus !== "granted" && (
+          <div
+            style={{
+              flexShrink: 0,
+              padding: "10px 16px",
+              background: mediaStatus === "denied" ? "#4a1a1a" : "#1a2a3a",
+              color: "#eee",
+              fontSize: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
+            {mediaStatus === "idle" && (
+              <>
+                <span>Unity needs microphone (and optionally camera) access. Click to allow for this site.</span>
+                <button
+                  type="button"
+                  onClick={handleRequestMedia}
+                  style={{ padding: "6px 14px", cursor: "pointer", fontWeight: 600 }}
+                >
+                  Enable microphone & camera
+                </button>
+              </>
+            )}
+            {mediaStatus === "requesting" && <span>Requesting access… Check the browser prompt.</span>}
+            {mediaStatus === "denied" && (
+              <>
+                <span>Access denied or unavailable. {mediaError && `(${mediaError})`}</span>
+                <button type="button" onClick={handleRequestMedia} style={{ padding: "6px 14px", cursor: "pointer" }}>
+                  Try again
+                </button>
+              </>
+            )}
+          </div>
+        )}
+        <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
+          <iframe
+            ref={iframeRef}
+            src="https://dev-ar.education.ufl.edu/unity/index.html"
+            title="Interactive training session"
+            style={{
+              border: "none",
+              width: "100%",
+              height: "100vh",
+              position: "absolute",
+              inset: 0,
+            }}
+            allow="microphone; camera; fullscreen"
+          />
         </div>
-      )}
-      <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
-        <iframe
-          ref={iframeRef}
-          src="/unity/index.html"
-          title="SPARC Unity WebGL"
-          style={{
-            border: "none",
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            inset: 0,
-          }}
-          allow="microphone; camera; fullscreen"
-        />
       </div>
     </div>
   );

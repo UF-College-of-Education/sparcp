@@ -68,7 +68,7 @@ export function ClearGuide ({isCollapsed}: {isCollapsed: boolean}) {
 
                     <div 
                         id="clearGuideContentContainer"
-                        className="clearGuideContentContainer overflow-y-auto"
+                        className="clearGuideContentContainer overflow-y-auto z-40"
                         role="tabpanel"
                         aria-labelledby={tabIds[activeSection]}
                     >

@@ -11,7 +11,7 @@ export function MenuTrayControlButton({ handleClick, isCollapsed }: { handleClic
     
     return (
         <button
-            className="sparc-open-menu shadow-sm bg-white absolute -right-4 bottom-1/2 rounded-full"
+            className="sparc-open-menu shadow-sm bg-white absolute -right-4 bottom-1/2 rounded-full z-30"
             onClick={handleClick}
             aria-expanded={isCollapsed ? false : true}
             aria-controls="sparc-nav"
