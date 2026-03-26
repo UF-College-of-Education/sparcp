@@ -38,7 +38,7 @@ export default function ClearGuideSectionToggle ({activeSection, clickHandler, s
                     aria-label="CLEAR Method FAQs"
                     role="tab"
                     aria-selected={activeSection == 2} >
-                    FAQs
+                    Examples
                 </button>
             </div>
         </div>
