@@ -1,5 +1,5 @@
 import { 
-    CircleQuestionMark, 
+    BookOpenText,
     X 
 } from "lucide-react";
 import { useState } from "react";
@@ -37,7 +37,7 @@ export function ClearGuide ({isCollapsed}: {isCollapsed: boolean}) {
                 aria-label="Open Clear Guide Card"
                 onClick={ ()=>{setIsOpen(prev => !prev);} }
             >   
-                <CircleQuestionMark className="h-6 w-6 inline" />
+                <BookOpenText className="h-6 w-6 inline" />
                 <span className={`text-s font-semibold overflow-hidden ${isCollapsed ? ' opacity-0 w-0' : 'px-2 opacity-100 w-auto'}`}>Guide</span>
             </button>)}
 
