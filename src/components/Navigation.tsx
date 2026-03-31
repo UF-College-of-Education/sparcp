@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import sparcLogo from "../assets/SPARC_Logo_BlueMulticolor.png";
+import sparcIcon from "../assets/sparc-icon.svg";
 import { 
   MenuIcon,
   MessageCircle, 
@@ -38,10 +39,16 @@ export function Navigation() {
         <div className={`flex items-center gap-0 ${isCollapsed ? 'h-auto' : 'h-20'}`}>
           
           <div 
-            className={`bg-primary rounded-lg flex items-center justify-center transition-all duration-300 delay-200 h-10 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} 
-            onClick={() => setIsCollapsed(prev => !prev)}
+            className={`bg-yellow rounded-lg flex items-center justify-center transition-all duration-300 delay-200 h-12 ${isCollapsed ? 'w-12 opacity-100' : 'w-0 opacity-0' }`} 
           >
-            <MenuIcon className={`text-primary-foreground transition-all duration-300 h-6 delay-200 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} strokeWidth={3} />
+            <img 
+              alt="SPARC-P Logo"
+              width="28"
+              height="28"
+              className="w-full"
+              src={sparcIcon}
+            />
+            {/* <MenuIcon className={`text-primary-foreground transition-all duration-300 h-6 delay-200 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} strokeWidth={3} /> */}
           </div>
           
           <div className={`overflow-hidden transition-all duration-300  ${isCollapsed ? 'w-0 h-0' : 'w-auto h-auto'}`}>
@@ -54,6 +61,15 @@ export function Navigation() {
         </div>
       </div>
 
+      <ClearGuide isCollapsed={isCollapsed}></ClearGuide>
+
+      <button 
+        className={`bg-primary rounded-lg m-2 flex items-center justify-center transition-all duration-300 delay-200 h-12 ${isCollapsed ? 'w-12 opacity-100' : 'w-0 h-0 opacity-0 absolute' }`} 
+        onClick={()=>{setIsCollapsed(prev=>!prev)}}
+      >
+        <MenuIcon className={`text-primary-foreground transition-all duration-300 h-6 delay-200 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} strokeWidth={3} />
+      </button>
+      
       <div className="p-4">
           <nav id="sparc-nav" className={`space-y-1 overflow-hidden transition-all duration-300 ${isCollapsed ? 'h-0 opacity-0' : 'delay-200 opacity-100 h-auto'}`} >
             <ul>
@@ -86,8 +102,6 @@ export function Navigation() {
               </li>
             </ul>
           </nav>
-
-        <ClearGuide isCollapsed={isCollapsed}></ClearGuide>
         
         <MenuTrayControlButton
           handleClick={() => setIsCollapsed(prev => !prev)}
