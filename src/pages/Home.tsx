@@ -17,38 +17,41 @@ export function Home() {
                 </div>
                 
                 <div className="columns-3 gap-20 pt-8 pb-8">
-                    <figure>
+                    <figure className="flex flex-col items-center">
                         <img 
                             src={Placeholder1}
-                            alt=""
-                            className=""
-                        ></img>
+                            alt="Doctor receives instructions"
+                            className="mb-4"
+                            width={"280"}
+                        />
                         <figcaption className="">
-                            <h3 className="text-2xl">Instructions</h3>
+                            <h3 className="text-xl font-semibold mb-2">Instructions</h3>
                             <p>You will receive specific instructions before each training segment.</p>
                         </figcaption>
                     </figure>
 
-                    <figure>
+                    <figure className="flex flex-col items-center">
                         <img 
                             src={Placeholder2}
-                            alt=""
-                            className=""
+                            alt="Doctor interacts with online content"
+                            className="mb-4 text-center"
+                            width={"280"}
                         ></img>
                         <figcaption className="">
-                            <h3 className="text-2xl">Interact</h3>
+                            <h3 className="text-xl font-semibold mb-2">Interact</h3>
                             <p>Next you will speak with the virtual parent as if they are in the room with you.</p>
                         </figcaption>
                     </figure>
 
-                    <figure>
+                    <figure className="flex flex-col items-center">
                         <img 
                             src={Placeholder3}
-                            alt=""
-                            className=""
+                            alt="Doctor receives feedback"
+                            className="mb-4 text-center"
+                            width={"280"}
                         ></img>
                         <figcaption className="">
-                            <h3 className="text-2xl">Feedback</h3>
+                            <h3 className="text-xl font-semibold mb-2">Feedback</h3>
                             <p>A virtual coach will appear on screen to provide feedback on what went well during the session and what can be improved.</p>
                         </figcaption>
                     </figure>
