@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Placeholder1 from "../../src/assets/placeholder-1.png";
-import Placeholder2 from "../../src/assets/placeholder-2.png";
-import Placeholder3 from "../../src/assets/placeholder-3.png";
+import Placeholder1 from "../assets/placeholder-1.png";
+import Placeholder2 from "../assets/placeholder-2.png";
+import Placeholder3 from "../assets/placeholder-3.png";
 import { WelcomeNewUser } from "../components/home/WelcomeNewUser";
 
 export function Home() {
