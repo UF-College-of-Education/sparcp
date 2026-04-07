@@ -64,7 +64,7 @@ export function Navigation() {
       <ClearGuide isCollapsed={isCollapsed}></ClearGuide>
 
       <button 
-        className={`bg-primary rounded-lg m-2 flex items-center justify-center transition-all duration-300 delay-200 h-12 ${isCollapsed ? 'w-12 opacity-100' : 'w-0 h-0 opacity-0 absolute' }`} 
+        className={`bg-black border-black-800 border rounded-lg m-2 flex items-center justify-center transition-all duration-300 delay-200 h-12 ${isCollapsed ? 'w-12 opacity-100' : 'w-0 h-0 opacity-0 absolute' }`} 
         onClick={()=>{setIsCollapsed(prev=>!prev)}}
       >
         <MenuIcon className={`text-primary-foreground transition-all duration-300 h-6 delay-200 ${isCollapsed ? 'w-10 opacity-100' : 'w-0 opacity-0' }`} strokeWidth={3} />
