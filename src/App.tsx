@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigation } from "./components/Navigation";
 import {
   BrowserRouter,
@@ -13,6 +14,7 @@ import { Home } from "./pages/Home";
 import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./pages/SparcUnityPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { sendPageView } from "./lib/analytics";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth();
@@ -27,6 +29,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function Layout() {
   const location = useLocation();
   const showNav = location.pathname !== "/login";
+
+  useEffect(() => {
+    sendPageView(location.pathname, document.title);
+  }, [location]);
 
   return (
     <>
