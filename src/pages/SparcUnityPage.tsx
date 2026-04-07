@@ -9,7 +9,7 @@ async function requestMediaInParent(): Promise<{ ok: boolean; error?: string }> 
     return { ok: false, error: "getUserMedia not supported" };
   }
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     stream.getTracks().forEach((t) => t.stop());
     return { ok: true };
   } catch (e: any) {
@@ -124,13 +124,13 @@ const SparcUnityPage: React.FC = () => {
           >
             {mediaStatus === "idle" && (
               <>
-                <span>Unity needs microphone (and optionally camera) access. Click to allow for this site.</span>
+                <span>Unity needs microphone access. Click to allow for this site.</span>
                 <button
                   type="button"
                   onClick={handleRequestMedia}
                   style={{ padding: "6px 14px", cursor: "pointer", fontWeight: 600 }}
                 >
-                  Enable microphone & camera
+                  Enable microphone
                 </button>
               </>
             )}
@@ -157,7 +157,7 @@ const SparcUnityPage: React.FC = () => {
               position: "absolute",
               inset: 0,
             }}
-            allow="microphone; camera; fullscreen"
+            allow="microphone; fullscreen; local-network"
           />
         </div>
       </div>
