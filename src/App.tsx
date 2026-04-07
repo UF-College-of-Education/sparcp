@@ -21,6 +21,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+const PAGE_TITLES: Record<string, string> = {
+  "/":          "Home",
+  "/dashboard": "Dashboard",
+  "/reports":   "My Progress",
+  "/resources": "Resources",
+  "/training":  "Training",
+  "/login":     "Login",
+};
+
+const APP_NAME = "SPARC";
+
 /**
  * Layout is used because useLocation can't be called
  * directly in App. It needs the context from the
@@ -31,6 +42,8 @@ function Layout() {
   const showNav = location.pathname !== "/login";
 
   useEffect(() => {
+    const pageTitle = PAGE_TITLES[location.pathname] ?? "SPARC";
+    document.title = `${pageTitle} | ${APP_NAME}`;
     sendPageView(location.pathname, document.title);
   }, [location]);
 
