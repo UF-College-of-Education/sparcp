@@ -17,6 +17,8 @@ async function requestMediaInParent(): Promise<{ ok: boolean; error?: string }> 
   }
 }
 
+const CACHE_BUST = Date.now().toString(36);
+
 const SparcUnityPage: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const postToUnityRef = useRef<((payload: OutboundUnityMessage) => void) | null>(null);
@@ -146,7 +148,7 @@ const SparcUnityPage: React.FC = () => {
         <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
           <iframe
             ref={iframeRef}
-            src="https://dev-ar.education.ufl.edu/unity/index.html"
+            src={`https://dev-ar.education.ufl.edu/unity/index.html?v=${CACHE_BUST}`}
             title="Interactive training session"
             style={{
               border: "none",
