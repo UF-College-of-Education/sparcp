@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
   useLocation,
+  Outlet,
 } from "react-router";
 import { Dashboard } from "./pages/Dashboard";
 import { Reports } from "./pages/Reports";
@@ -16,9 +17,16 @@ import SparcUnityPage from "./pages/SparcUnityPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { sendPageView } from "./lib/analytics";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedLayout() {
   const { isLoggedIn } = useAuth();
-  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  return (<> 
+    <Navigation/>
+    <Outlet/>
+  </>) ;
 }
 
 const PAGE_TITLES: Record<string, string> = {
@@ -39,7 +47,6 @@ const APP_NAME = "SPARC";
  */
 function Layout() {
   const location = useLocation();
-  const showNav = location.pathname !== "/login";
 
   useEffect(() => {
     const pageTitle = PAGE_TITLES[location.pathname] ?? "SPARC";
@@ -49,14 +56,16 @@ function Layout() {
 
   return (
     <>
-      {showNav && <Navigation />}
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-        <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
-        <Route path="/training" element={<ProtectedRoute><SparcUnityPage /></ProtectedRoute>} />
+        <Route element={<ProtectedLayout/>}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/training" element={<SparcUnityPage />} />
+        </Route>
+        
       </Routes>
     </>
   );
@@ -66,7 +75,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Layout />
+        <Layout/>
       </BrowserRouter>
     </AuthProvider>
   );
