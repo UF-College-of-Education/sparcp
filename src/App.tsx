@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { Navigation } from "./components/Navigation";
 import {
-  BrowserRouter,
-  Routes,
-  Route,
+  createBrowserRouter,
+  RouterProvider,
   Navigate,
   useLocation,
   Outlet,
@@ -41,11 +40,6 @@ const PAGE_TITLES: Record<string, string> = {
 
 const APP_NAME = "SPARC";
 
-/**
- * Layout is used because useLocation can't be called
- * directly in App. It needs the context from the
- * BrowserRouter component to fetch current route.
- */
 function Layout() {
   const location = useLocation();
 
@@ -56,30 +50,35 @@ function Layout() {
   }, [location]);
 
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route element={<ProtectedLayout/>}>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/training" element={<SparcUnityPage />} />
-        </Route>
-        
-      </Routes>
-    </>
+    <ProgressProvider>
+      <Outlet />
+    </ProgressProvider>
   );
 }
+
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { path: "/login", element: <Login /> },
+      {
+        element: <ProtectedLayout />,
+        children: [
+          { path: "/", element: <Home /> },
+          { path: "/dashboard", element: <Dashboard /> },
+          { path: "/reports", element: <Reports /> },
+          { path: "/resources", element: <Resources /> },
+          { path: "/training", element: <SparcUnityPage /> },
+        ],
+      },
+    ],
+  },
+]);
 
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <ProgressProvider>
-          <Layout/>
-        </ProgressProvider>
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </AuthProvider>
   );
 }
