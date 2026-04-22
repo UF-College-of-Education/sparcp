@@ -16,6 +16,7 @@ import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./pages/SparcUnityPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { sendPageView } from "./lib/analytics";
+import { ProgressProvider } from "./context/ProgressContext";
 
 function ProtectedLayout() {
   const { isLoggedIn } = useAuth();
@@ -75,7 +76,9 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Layout/>
+        <ProgressProvider>
+          <Layout/>
+        </ProgressProvider>
       </BrowserRouter>
     </AuthProvider>
   );
