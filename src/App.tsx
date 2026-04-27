@@ -16,6 +16,7 @@ import SparcUnityPage from "./pages/SparcUnityPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { sendPageView } from "./lib/analytics";
 import { ProgressProvider } from "./context/ProgressContext";
+import { Didactic } from "./pages/Didactic";
 
 function ProtectedLayout() {
   const { isLoggedIn } = useAuth();
@@ -36,6 +37,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/resources": "Resources",
   "/training":  "Training",
   "/login":     "Login",
+  "/clear":     "The C-LEAR Method"
 };
 
 const APP_NAME = "SPARC";
@@ -69,6 +71,7 @@ const router = createBrowserRouter([
           { path: "/reports", element: <Reports /> },
           { path: "/resources", element: <Resources /> },
           { path: "/training", element: <SparcUnityPage /> },
+          { path: "/clear", element: <Didactic /> },
         ],
       },
     ],

@@ -17,7 +17,7 @@ import { ClearGuide } from "./clear-guide/ClearGuide";
 
 const navigationItems = [
   { id: "home", label: "Home", icon: House, route: "/", submenu: false },
-  { id: "training", label: "Training", icon: MessageCircle, route: "/training", submenu: true },
+  { id: "training", label: "Training", icon: MessageCircle, route: "/clear", submenu: true },
   { id: "resources", label: "Resources", icon: BookOpen, route: "/resources", submenu: false },
   { id: "progress", label: "My Progress", icon: BarChart3, route: "/reports", submenu: false },
 ];
