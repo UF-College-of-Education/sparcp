@@ -148,7 +148,7 @@ const SparcUnityPage: React.FC = () => {
         <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
           <iframe
             ref={iframeRef}
-            src={`https://dev-ar.education.ufl.edu/unity/index.html?v=${CACHE_BUST}`}
+            src={`/unity/index.html?v=${CACHE_BUST}`}
             title="Interactive training session"
             style={{
               border: "none",
