@@ -7,16 +7,21 @@ import {
   useLocation,
   Outlet,
 } from "react-router";
+import { sendPageView } from "./lib/analytics";
+// Page Components
 import { Dashboard } from "./pages/Dashboard";
 import { Reports } from "./pages/Reports";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
 import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./pages/SparcUnityPage";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { sendPageView } from "./lib/analytics";
-import { ProgressProvider } from "./context/ProgressContext";
 import { Didactic } from "./pages/Didactic";
+// Contexts
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ProgressProvider } from "./context/ProgressContext";
+import { FirebaseUIProvider } from "@firebase-oss/ui-react";
+import { ui } from "./lib/firebase";
+
 
 function ProtectedLayout() {
   const { isLoggedIn } = useAuth();
@@ -80,8 +85,10 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <FirebaseUIProvider ui={ui}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </FirebaseUIProvider>
   );
 }

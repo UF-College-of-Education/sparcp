@@ -20,6 +20,7 @@
     "vite": "^7.3.0"
   },
   "dependencies": {
+    "@firebase-oss/ui-react": "^7.0.2-beta",
     "@mdx-js/rollup": "^3.1.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
