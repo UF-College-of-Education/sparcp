@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import sparcLogo from "../assets/SPARC_Logo_BlueMulticolor.png";
 import sparcIcon from "../assets/sparc-icon.svg";
 import { 
@@ -9,11 +9,14 @@ import {
   ChevronRight,
   House,
   LogOut,
+  TriangleAlert,
 } from "lucide-react";
-import { NavLink } from "react-router";
+import { NavLink, useBlocker, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { MenuTrayControlButton } from "./MenuTrayControlButton";
 import { ClearGuide } from "./clear-guide/ClearGuide";
+import { useProgress } from "../context/ProgressContext";
+import { Confirm } from "./ui/confirm";
 
 const navigationItems = [
   { id: "home", label: "Home", icon: House, route: "/", submenu: false },
@@ -25,6 +28,8 @@ const navigationItems = [
 export function Navigation() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const {logout} = useAuth();
+  const location = useLocation();
+  const {unityActive} = useProgress();
 
   // Collapse menu automatically on training page
   useEffect(()=>{
@@ -32,6 +37,27 @@ export function Navigation() {
     },
     [location.pathname]
   );
+
+  // Show Confirmation Box if user tries to leave training early
+  const confirmNavigation = useCallback<()=>boolean>( 
+    ()=>{ return unityActive },
+    [unityActive]
+  );
+
+  let blocker = useBlocker(confirmNavigation);
+
+  const handleConfirm = () => {
+    (blocker.state=='blocked') ? blocker.proceed() : console.log('Blocker not available.');
+  }
+
+  const handleCancel = () => {
+    if (blocker.state=='blocked') {
+      blocker.reset() }
+      // Return focus to Unity window?
+    else {
+      console.log('Blocker not available.');
+    }
+  }
 
   return (
     <div className={`bg-card relative border-r transition-all duration-300 md:h-screen ${isCollapsed ? "w-16 " : "w-64"}`}>
@@ -108,6 +134,16 @@ export function Navigation() {
           isCollapsed={isCollapsed}
         />
       </div>
+
+      {
+        // Show pop-up if user tries to leave training earlier
+        blocker.state === "blocked" ? (<>
+          <Confirm onConfirm={handleConfirm} onCancel={handleCancel}>
+            <TriangleAlert className="text-primary mb-4 mx-auto w-20 h-20 " />
+            <p>You will lose your progress if you leave now. Are you sure that you want to leave?</p>
+          </Confirm>
+        </>) : null
+      } 
 
     </div>
   );
