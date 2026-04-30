@@ -24,7 +24,7 @@ export function ProgressProvider ({ children }: { children: React.ReactNode }) {
     const location = useLocation();
 
     useEffect(()=>{    
-        setUnityActive(['/training', '/didactic'].includes(location.pathname))
+        setUnityActive(['/training'].includes(location.pathname))
     }, [location]);
 
 
