@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { InboundUnityMessage, OutboundUnityMessage } from "../types";
 import useUnityBridge from "../hooks/useUnityBridge";
+import { LoaderCircle } from "lucide-react";
 // import { pauseSession, resumeSession, requestCurrentSession } from "../lib/unityUtils";
 
 /** Request mic/camera in the parent so the same-origin Unity iframe can use them. */
@@ -26,6 +27,7 @@ const SparcUnityPage: React.FC = () => {
   const [lastEvent, setLastEvent] = useState<string>("");
   const [mediaStatus, setMediaStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [mediaError, setMediaError] = useState<string | null>(null);
+  const [loaderStatus, setLoaderStatus] = useState('loading');
 
   const handleRequestMedia = useCallback(async () => {
     setMediaStatus("requesting");
@@ -48,6 +50,11 @@ const SparcUnityPage: React.FC = () => {
       },
       () => {}
     );
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoaderStatus('complete'), 10000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Handle messages FROM Unity (iframe → React)
@@ -105,6 +112,12 @@ const SparcUnityPage: React.FC = () => {
 
   return (
     <div className="relative w-full h-page z-0">
+      {loaderStatus === 'loading' && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70">
+          <p className="text-lg text-white font-900">Loading simulation...</p>
+          <LoaderCircle className="w-12 h-12 text-yellow animate-spin m-4" />
+        </div>
+      )}
       <div
         className="absolute top-0 left-0 w-full" 
         style={{ height: "100%", overflow: "hidden", background: "#111", display: "flex", flexDirection: "column" }}>
