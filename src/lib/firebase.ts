@@ -1,16 +1,19 @@
 import { initializeApp } from "firebase/app";
-import { initializeUI, providerRedirectStrategy } from '@firebase-oss/ui-core';
+import { initializeUI } from '@firebase-oss/ui-core';
 import { 
     getFirestore, 
     collection, 
     query, 
     where, 
     limit,
-    getDocs 
+    getDocs, 
+    doc,
+    getDoc
 } from "firebase/firestore";
 
 import type { SessionData, RawSessionSnapshot } from "../types";
-import { getAuth } from "firebase/auth";
+import type { ActionCodeSettings, AuthError } from "firebase/auth";
+import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -29,14 +32,82 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
-const behaviors: [] = [
-    // providerRedirectStrategy();
-];
-
-export const ui = initializeUI({ app, behaviors});
+export const ui = initializeUI({ app });
 
 export const auth = getAuth();
 
+/**
+ * Checks if user is on allow list and sends link
+ * @param email 
+ * @param actionCodeSettings 
+ * @returns 
+ */
+export async function attemptLogin(email: string, actionCodeSettings: ActionCodeSettings) {
+    
+    // Check email against permitted users
+    const validUser = await validateEmailAddress(email);
+
+    if (validUser == false) {
+        return "invalid";
+    }
+
+    window.localStorage.setItem('emailForSignIn', email);
+
+    try {
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    }
+    catch (error) {
+        return error;
+    }
+    return 'sent';
+}
+
+/**
+ * Check if Email Address is on the allowedUsers list
+ * @param email 
+ * @returns 
+ */
+export async function validateEmailAddress( email: string) {
+    const docRef = doc(db, "allowedUsers", email );
+    const snapshot = await getDoc(docRef);
+    const isAllowed = snapshot.exists() && snapshot.data().active === true;
+
+    if (isAllowed ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+/**
+ * Checks if user has clicked link from sign in email 
+ * and validates the info provide
+ * @returns string | null
+ */
+export async function CompleteSignIn() {
+    if (! isSignInWithEmailLink(auth, window.location.href)) return null;
+
+    // Attempt to retrieve email of user signing in
+    let emailForSignIn = localStorage.getItem('emailForSignIn');
+    if (!emailForSignIn) {
+        emailForSignIn = window.prompt('Please confirm your email address');
+    }
+
+    if (!emailForSignIn) {
+        return "invalidEmail";
+    }
+
+    // Send info to Google for verification
+    try {
+        await signInWithEmailLink(auth, emailForSignIn, location.href);
+        window.localStorage.removeItem('emailForSignIn');
+        return "success";
+    } catch (error) {
+        const { code } = error as AuthError;
+        return code;
+    }
+}
 
 /**
  * FETCH USER SESSIONS
