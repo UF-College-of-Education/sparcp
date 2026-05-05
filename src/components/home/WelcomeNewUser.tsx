@@ -21,7 +21,7 @@ export function WelcomeNewUser () {
             <div className="sparc-column w-full">
                 <Content components={mdxComponents}/>
                 <iframe 
-                    src={`https://player.vimeo.com/video/${videoProps['videoId']}?h=${videoProps['hash']}&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=0&title=0&byline=0&portrait=0`}
+                    src={`https://player.vimeo.com/video/${videoProps['videoId']}?h=${videoProps['hash']}&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&title=0&byline=0&portrait=0`}
                     width="960" height="540" 
                     allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
                     referrerPolicy="strict-origin-when-cross-origin" 
