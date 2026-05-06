@@ -3,6 +3,7 @@ import { ClearModules } from "../components/resources/ClearModules";
 import type { Module, ResourceListing, Video } from "../types";
 import { VideoIndex } from "../components/resources/VideoIndex";
 import { MoreResources } from "../components/resources/MoreResources";
+import { processVimeoEmbedCode } from "../lib/utils";
 
 const clearModules: Module[] = [
   {
@@ -14,13 +15,13 @@ const clearModules: Module[] = [
     completed: true,
     content: {
       keyPoints: [
-        "Present HPV vaccine as cancer prevention",
+        "Present HPV vaccine as cancer prevention against 6 types of cancer",
         "Use clear, jargon-free language",
         "Provide specific recommendations based on guidelines",
         "Address timing and dosing clearly"
       ],
       examples: [
-        "I recommend the HPV vaccine for your child because it prevents cancers later in life.",
+        "We have a vaccine for 9-year-olds that prevents against six types of cancer. I recommend they get this safe vaccine today and then come back in 6 to 12 months to get the second dose.",
         "The vaccine is most effective when given at age 11-12, before exposure to HPV."
       ]
     }
@@ -34,9 +35,10 @@ const clearModules: Module[] = [
     completed: true,
     content: {
       keyPoints: [
+        "Restate parents' concerns to ensure understanding",
+        "Explore parents' concerns with open ended questions",
         "Give parents your full attention",
         "Use verbal and non-verbal encouragement",
-        "Ask open-ended questions",
         "Avoid interrupting"
       ],
       examples: [
@@ -48,7 +50,7 @@ const clearModules: Module[] = [
   {
     id: "empathize",
     letter: "E",
-    title: "Empathize",
+    title: "Empathy",
     description: "Develop skills to show genuine understanding and compassion",
     duration: "10 min",
     completed: false,
@@ -86,11 +88,11 @@ const clearModules: Module[] = [
     }
   },
   {
-    id: "restate",
+    id: "recommend",
     letter: "R",
-    title: "Restate",
-    description: "Practice summarizing to ensure mutual understanding",
-    duration: "7 min",
+    title: "Recommend",
+    description: "Make a strong recommendation",
+    duration: "1 min",
     completed: false,
     content: {
       keyPoints: [
@@ -107,36 +109,40 @@ const clearModules: Module[] = [
   }
 ];
 
+const video1 = processVimeoEmbedCode('');
+const video2 = processVimeoEmbedCode('');
+const video3 = processVimeoEmbedCode('');
+
 const videos: Video[] = [
   {
     id: 1,
-    title: "The Concerned Parent",
+    title: "Welcome Video",
     description: "Parent worried about vaccine safety after reading online articles",
-    url: "https://vimeo.com/1138936606?share=copy&fl=sv&fe=ci",
-    duration: "10-15 min",
-    skills: ["Listen", "Empathize", "Counsel"],
+    url: `https://vimeo.com/1183789256/58df34ea06?share=copy&fl=cl&fe=ci`,
+    duration: "2:43",
+    skills: [],
     host: "Vimeo",
-    embedCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1138936606?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Discover UF\'s Education Impact in 2025"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
+    embedCode: '<iframe src="https://player.vimeo.com/video/1175286017?h=af884888a7&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" width="450" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Website Welcome Video"></iframe>'
   },
   {
     id: 2,
-    title: "The Hesitant Family",
-    description: "Family with religious or philosophical objections to vaccination",
-    url: "https://vimeo.com/1138936606?share=copy&fl=sv&fe=ci",
-    duration: "15-20 min",
-    skills: ["Answer", "Restate", "Counsel"],
+    title: "How to Talk to Parents About the HPV Vaccine: The C-LEAR Approach",
+    description: "",
+    url: "https://vimeo.com/1185190523/e3adf950be?share=copy&fl=cl&fe=ci",
+    duration: "26:05",
+    skills: ["Counsel", "Listen", "Empathize", "Answer", "Recommend", ],
     host: "Vimeo",
-    embedCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1138936606?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Discover UF\'s Education Impact in 2025"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
+    embedCode: '<iframe src="https://player.vimeo.com/video/1185190523?h=e3adf950be&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Didactic Video (CC)"></iframe>'
   },
   {
     id: 3,
-    title: "The Research-Heavy Parent",
-    description: "Parent who has done extensive research and wants detailed discussion",
-    url: "https://vimeo.com/1138936606?share=copy&fl=sv&fe=ci",
-    duration: "20-25 min",
-    skills: ["Listen", "Counsel", "Restate"],
+    title: "Skills Practice 1 Instructions",
+    description: "",
+    url: "https://vimeo.com/1188484197/3073e5f22e?share=copy&fl=cl&fe=ci",
+    duration: "4:01",
+    skills: [],
     host: "Vimeo",
-    embedCode: '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1138936606?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Discover UF\'s Education Impact in 2025"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
+    embedCode: '<iframe src="https://player.vimeo.com/video/1188484197?h=3073e5f22e&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Skills Practice 1"></iframe>'
   }
 ];
 

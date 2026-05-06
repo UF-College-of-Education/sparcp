@@ -1,54 +1,94 @@
+import { useEffect } from "react";
 import { Navigation } from "./components/Navigation";
 import {
-  BrowserRouter,
-  Routes,
-  Route,
+  createBrowserRouter,
+  RouterProvider,
   Navigate,
   useLocation,
+  Outlet,
 } from "react-router";
+import { sendPageView } from "./lib/analytics";
+// Page Components
 import { Dashboard } from "./pages/Dashboard";
 import { Reports } from "./pages/Reports";
 import { Login } from "./pages/Login";
 import { Home } from "./pages/Home";
 import { Resources } from "./pages/Resources";
 import SparcUnityPage from "./pages/SparcUnityPage";
+import { Didactic } from "./pages/Didactic";
+// Contexts
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ProgressProvider } from "./context/ProgressContext";
+import { FirebaseUIProvider } from "@firebase-oss/ui-react";
+import { ui } from "./lib/firebase";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+
+function ProtectedLayout() {
   const { isLoggedIn } = useAuth();
-  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  return (<> 
+    <Navigation/>
+    <Outlet/>
+  </>) ;
 }
 
-/**
- * Layout is used because useLocation can't be called
- * directly in App. It needs the context from the
- * BrowserRouter component to fetch current route.
- */
+const PAGE_TITLES: Record<string, string> = {
+  "/":          "Home",
+  "/dashboard": "Dashboard",
+  "/reports":   "My Progress",
+  "/resources": "Resources",
+  "/training":  "Training",
+  "/login":     "Login",
+  "/clear":     "The C-LEAR Method"
+};
+
+const APP_NAME = "SPARC";
+
 function Layout() {
   const location = useLocation();
-  const showNav = location.pathname !== "/login";
+
+  useEffect(() => {
+    const pageTitle = PAGE_TITLES[location.pathname] ?? "SPARC";
+    document.title = `${pageTitle} | ${APP_NAME}`;
+    sendPageView(location.pathname, document.title);
+  }, [location]);
 
   return (
-    <>
-      {showNav && <Navigation />}
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-        <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
-        <Route path="/training" element={<ProtectedRoute><SparcUnityPage /></ProtectedRoute>} />
-      </Routes>
-    </>
+    <ProgressProvider>
+      <Outlet />
+    </ProgressProvider>
   );
 }
 
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { path: "/login", element: <Login /> },
+      {
+        element: <ProtectedLayout />,
+        children: [
+          { path: "/", element: <Home /> },
+          { path: "/dashboard", element: <Dashboard /> },
+          { path: "/reports", element: <Reports /> },
+          { path: "/resources", element: <Resources /> },
+          { path: "/training", element: <SparcUnityPage /> },
+          { path: "/clear", element: <Didactic /> },
+        ],
+      },
+    ],
+  },
+]);
+
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    </AuthProvider>
+    <FirebaseUIProvider ui={ui}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </FirebaseUIProvider>
   );
 }

@@ -39,7 +39,7 @@ export function VideoIndex( {videos}: Videos) {
                 
               <Card key={video.id} className="p-6">
 
-                <div className="mb-4 w-full aspect-video">
+                <div className="mb-4 w-full aspect-video relative">
                     {renderVideo(video)}
                 </div>
 

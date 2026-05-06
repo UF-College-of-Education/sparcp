@@ -1,13 +1,13 @@
+import { RecentSessions } from "../components/reports/RecentSessions";
+
 export function Reports(){
     return (
-        <div className="p-6">
-        <h1 className="text-3xl font-semibold mb-4">
-            Reports
-        </h1>
-        <p className="text-muted-foreground">
-            Detailed analytics and progress tracking coming
-            soon...
-        </p>
-        </div>
+        <main className="p-6 border w-full ">
+            <h1 className="text-3xl font-bold mb-10 mt-4 ml-6">
+                My Progress & Feedback
+            </h1>
+       
+            <RecentSessions />
+        </main>
     );
 }

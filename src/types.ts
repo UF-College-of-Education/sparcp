@@ -2,7 +2,11 @@
  * USER AND AUTH 
  */
 export type User = {
-    username: string;
+    displayName?: string;
+    email?: string;
+    emailVerified?: boolean;
+    uuid: string;
+    lastLoginTime: Date;
     // Shibboleth attributes (e.g. email, role) will be added here
 };
 
@@ -61,3 +65,31 @@ export type InboundUnityMessage =
 export type OutboundUnityMessage =
   | { type: "REACT_TO_UNITY_SESSION"; data: { sessionData: Record<string, any> } }
   | { type: "REACT_TO_UNITY_COMMAND"; data: { command: string } };
+
+/******************
+ * SESSION DATA
+ *****************/
+/**
+ * Raw Session Snapshot - Unprocessed session data from Firebase
+ */
+export type RawSessionSnapshot = {
+  createdAt: string ;
+  phaseCompletions?: phaseCompletion[];
+}
+
+/**
+ * Session data ready to use on frontend
+ */
+export type SessionData = {
+  id: string;
+  createdAt: string ;
+  phaseCompletions?: phaseCompletion[];
+}
+
+/**
+ * Raw Session Snapshot - Unprocessed session data from Firebase
+ */
+export type phaseCompletion = {
+  phaseName?: string;
+  tryNextTime?: string;
+}
