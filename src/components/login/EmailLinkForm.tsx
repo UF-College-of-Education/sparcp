@@ -93,7 +93,8 @@ export  function EmailLinkForm ({redirectUrl}: {redirectUrl ?: string }) {
             setFeedbackMessage('Please enter an email address.');
             return;
         }
-
+        
+        // Validate submission and login
         try {
             const status = await attemptLogin(emailValue, actionCodeSettings);
             const feedbackText = typeof(status)==='string' ? generateFeedback(status) : '';
