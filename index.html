@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Mic for this origin: policy below. Unity WebGL FMOD getUserMedia queue + gesture shim: public/unity/index.html → dist/unity/index.html (iframe document), not here. -->
+    <meta http-equiv="Permissions-Policy" content="microphone=(self), fullscreen=(self)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPARC-P</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-MH5Z823Z');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Firebase session bridge: keeps React parent aware of the Unity iframe's Firebase session.
+         When Unity signs in or creates a session, it postMessages UNITY_FIREBASE_USER /
+         UNITY_SESSION_CREATED here. We store the info on window.__unitySession so React
+         components can read it, and we forward React's UID back to Unity via REACT_TO_UNITY_AUTH
+         whenever a frame matching the Unity container appears. -->
+    <script>
+      (function () {
+        window.__unitySession = null;
+
+        // Receive session info broadcast from Unity iframe
+        window.addEventListener('message', function (event) {
+          if (!event.origin || event.origin !== window.location.origin) return;
+          var msg = event.data;
+          if (!msg || typeof msg.type !== 'string') return;
+
+          if (msg.type === 'UNITY_FIREBASE_USER') {
+            window.__unitySession = window.__unitySession || {};
+            window.__unitySession.uid = msg.uid;
+            window.__unitySession.isAnonymous = msg.isAnonymous;
+            console.log('[Bridge] Unity Firebase user:', msg.uid);
+            window.dispatchEvent(new CustomEvent('unity-session-ready', { detail: window.__unitySession }));
+            // Reflect React parent UID back to Unity now that the frame is live
+            if (window.__reactFirebaseUid) {
+              _sendAuthToUnityFrames(window.__reactFirebaseUid);
+            }
+          }
+
+          if (msg.type === 'UNITY_SESSION_CREATED') {
+            window.__unitySession = window.__unitySession || {};
+            window.__unitySession.sessionId = msg.sessionId;
+            window.__unitySession.uid = msg.uid || window.__unitySession.uid;
+            console.log('[Bridge] Unity session created:', msg.sessionId);
+            window.dispatchEvent(new CustomEvent('unity-session-ready', { detail: window.__unitySession }));
+          }
+        });
+
+        // Send React app's Firebase UID to all Unity iframes
+        function _sendAuthToUnityFrames(uid) {
+          document.querySelectorAll('iframe').forEach(function (frame) {
+            try {
+              frame.contentWindow.postMessage(
+                { type: 'REACT_TO_UNITY_AUTH', data: { uid: uid, authState: 'signed_in' } },
+                window.location.origin
+              );
+            } catch (_e) { /* cross-origin or not yet loaded — skip */ }
+          });
+        }
+
+        // React app sets window.__reactFirebaseUid after its own auth resolves;
+        // the setter triggers a sync to any loaded Unity iframes.
+        var _reactUidInternal = null;
+        Object.defineProperty(window, '__reactFirebaseUid', {
+          get: function () { return _reactUidInternal; },
+          set: function (uid) {
+            _reactUidInternal = uid;
+            if (uid) {
+              console.log('[Bridge] React Firebase UID set:', uid);
+              _sendAuthToUnityFrames(uid);
+            }
+          },
+          configurable: true
+        });
+
+        // Watch for dynamically inserted iframes (Unity loads after React mounts)
+        var _lastFrameCount = 0;
+        var _observer = new MutationObserver(function () {
+          var frames = document.querySelectorAll('iframe');
+          if (frames.length !== _lastFrameCount) {
+            _lastFrameCount = frames.length;
+            if (frames.length > 0 && window.__reactFirebaseUid) {
+              _sendAuthToUnityFrames(window.__reactFirebaseUid);
+            }
+          }
+        });
+        _observer.observe(document.documentElement, { childList: true, subtree: true });
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-D41luiG_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Vqncp1YW.css">
+  </head>
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MH5Z823Z"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div id="root" class="flex"></div>
+  </body>
+</html>
