@@ -45,7 +45,8 @@ export const auth = getAuth();
 export async function attemptLogin(email: string, actionCodeSettings: ActionCodeSettings) {
     
     // Check email against permitted users
-    const validUser = await validateEmailAddress(email);
+    const userData = await getUserData(email);
+    const validUser = userData && userData.active === true;
 
     if (validUser == false) {
         return "invalid";
@@ -63,22 +64,21 @@ export async function attemptLogin(email: string, actionCodeSettings: ActionCode
 }
 
 /**
- * Check if Email Address is on the allowedUsers list
+ * Fetch user data from allowUsers collection
  * @param email 
- * @returns 
+ * @returns {userData} | false
  */
-export async function validateEmailAddress( email: string) {
+export async function getUserData(email: string) {
     const docRef = doc(db, "allowedUsers", email );
     const snapshot = await getDoc(docRef);
-    const isAllowed = snapshot.exists() && snapshot.data().active === true;
 
-    if (isAllowed ) {
-        return true;
-    } else {
+    if ( snapshot.exists() && snapshot.data()) {
+        const userData = snapshot.data();
+        return userData;
+    } else { 
         return false;
     }
 }
-
 
 /**
  * Checks if user has clicked link from sign in email 
