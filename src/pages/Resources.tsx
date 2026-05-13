@@ -3,7 +3,6 @@ import { ClearModules } from "../components/resources/ClearModules";
 import type { Module, ResourceListing, Video } from "../types";
 import { VideoIndex } from "../components/resources/VideoIndex";
 import { MoreResources } from "../components/resources/MoreResources";
-import { processVimeoEmbedCode } from "../lib/utils";
 
 const clearModules: Module[] = [
   {
@@ -108,10 +107,6 @@ const clearModules: Module[] = [
     }
   }
 ];
-
-const video1 = processVimeoEmbedCode('');
-const video2 = processVimeoEmbedCode('');
-const video3 = processVimeoEmbedCode('');
 
 const videos: Video[] = [
   {

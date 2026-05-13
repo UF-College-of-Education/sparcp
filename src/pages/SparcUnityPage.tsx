@@ -26,7 +26,6 @@ const SparcUnityPage: React.FC = () => {
   /** Cleared when UNITY_READY fires so the iframe can receive clicks for WebGL mic gestures. */
   const loaderFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [unityReady, setUnityReady] = useState(false);
-  const [lastEvent, setLastEvent] = useState<string>("");
   const [mediaStatus, setMediaStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [loaderStatus, setLoaderStatus] = useState<"loading" | "complete">("loading");
@@ -74,7 +73,6 @@ const SparcUnityPage: React.FC = () => {
       }
     }
     initMic();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -115,24 +113,20 @@ const SparcUnityPage: React.FC = () => {
         }
         setLoaderStatus("complete");
         setUnityReady(Boolean((data as any)?.ready));
-        setLastEvent("UNITY_READY");
         break;
 
       case "UNITY_SESSION_EVENT":
         // Session progress / summary from Unity
         console.log("UNITY_SESSION_EVENT", data);
-        setLastEvent("UNITY_SESSION_EVENT");
         // You can optionally push this to React-side Firebase if desired
         break;
 
       case "UNITY_ANALYTICS_EVENT":
         console.log("UNITY_ANALYTICS_EVENT", data);
-        setLastEvent(`UNITY_ANALYTICS_EVENT: ${(data as any)?.eventName ?? ""}`);
         break;
 
       case "UNITY_ERROR":
         console.error("UNITY_ERROR", data);
-        setLastEvent(`UNITY_ERROR: ${(data as any)?.errorType ?? ""}`);
         break;
 
       case "UNITY_REQUEST_DATA":
@@ -160,7 +154,9 @@ const SparcUnityPage: React.FC = () => {
   }, []);
 
   const postToUnity = useUnityBridge(iframeRef, handleMessage);
-  postToUnityRef.current = postToUnity;
+  useEffect(() => {
+    postToUnityRef.current = postToUnity;
+  }, [postToUnity]);
 
   return (
     <div className="relative w-full h-page z-0">

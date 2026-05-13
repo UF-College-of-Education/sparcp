@@ -37,7 +37,7 @@ const sessions = [
 
 export function RecentSessions () {
 
-    const [ sessionEntries, setSessionEntries ] = useState(sessions); // All sessions available - shape SessionData[]
+    const [ sessionEntries ] = useState(sessions); // All sessions available - shape SessionData[]
     const [ selectedSession, setSelectedSession] = useState(''); // Id of session to pull from sessionEntries
     const [ currentSegment, setCurrentSegment] = useState(''); // Id of segement within selectedSession to display
     const [ segmentData, setSegmentData] = useState({}) // Actual data that gets displayed

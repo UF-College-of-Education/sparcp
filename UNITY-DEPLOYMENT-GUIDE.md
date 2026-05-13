@@ -66,7 +66,7 @@ This guide documents how to deploy Unity WebGL builds to the SPARC-P React appli
 1. **Copy Unity build files** to `public/unity/` directory:
    - Replace `Build/*.loader.js`
    - Replace `Build/*.framework.js`
-   - Merge changes into `index.html` (see **Preserving the microphone shell** — do not replace with Unity’s bare template alone)
+   - Merge changes into `index.html` (see **Preserving the microphone shell** — merge Firebase URLs and loader from Unity’s export into this repo’s shell; do not replace with Unity’s bare template alone)
    - Update `StreamingAssets/` if changed
    - Update `TemplateData/` if changed
 

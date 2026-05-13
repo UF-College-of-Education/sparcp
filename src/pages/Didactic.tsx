@@ -1,8 +1,10 @@
-import Content, { videoEmbedCode, ctaButtonText, ctaButtonLink } from '../../content/training/didactic.mdx';
-import { type ComponentPropsWithoutRef } from 'react';
+import Content, { videoEmbedCode, ctaButtonText, ctaButtonLink, preplayMessage } from '../../content/training/didactic.mdx';
+import { type ComponentPropsWithoutRef, useEffect, useRef } from 'react';
 import Button from '../components/ui/button';
 import { Link } from 'react-router';
 import { processVimeoEmbedCode } from '../lib/utils';
+import Player from '@vimeo/player';
+import { useProgress } from '../context/ProgressContext';
 
 const videoProps = processVimeoEmbedCode( videoEmbedCode );
 
@@ -15,12 +17,27 @@ const mdxComponents = {
 };
 
 export function Didactic () {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const {didacticComplete, setDidacticComplete} = useProgress();
+
+    // Update Progress context when video is finished
+    useEffect( ()=>{
+        if ( ! iframeRef.current ) return;
+
+        const player = new Player(iframeRef.current);
+        player.on('ended', ()=>{
+            setDidacticComplete(true);
+        })
+        return () => { player.off('ended') };
+    }, []);
+
     return (
         <main className='w-full h-page p-12 flex align-center justify-center flex-col'>
 
             <Content components={mdxComponents}/>
 
             <iframe 
+                ref={iframeRef}
                 src={`https://player.vimeo.com/video/${videoProps['videoId']}?h=${videoProps['hash']}&badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0`}
                 width="960" height="540" 
                 allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
@@ -30,9 +47,13 @@ export function Didactic () {
             </iframe>
 
             <div className='text-center'>
-                <Button className="bg-yellow text-black border-2 border-yellow font-bold text-md hover:bg-white">
-                    <Link to={ctaButtonLink}>{ctaButtonText}</Link>
-                </Button>
+                <p className='m-4'>{preplayMessage}</p>
+                {didacticComplete ? 
+                    <Button className="bg-yellow text-black border-2 border-yellow font-bold text-md hover:bg-white transition-all duration-[250ms]">
+                        <Link to={ctaButtonLink} >{ctaButtonText}</Link>
+                    </Button> :
+                    <></>
+                }
             </div>
         </main>
     );

@@ -19,15 +19,15 @@ import { useProgress } from "../context/ProgressContext";
 import { Confirm } from "./ui/confirm";
 
 const navigationItems = [
-  { id: "home", label: "Home", icon: House, route: "/", submenu: false },
-  { id: "training", label: "Training", icon: MessageCircle, route: "/clear", submenu: true },
-  { id: "resources", label: "Resources", icon: BookOpen, route: "/resources", submenu: false },
-  { id: "progress", label: "My Progress", icon: BarChart3, route: "/reports", submenu: false },
+  { id: "home", label: "Home", icon: House, route: "/", submenu: false, permissions: [] },
+  { id: "training", label: "Training", icon: MessageCircle, route: "/clear", submenu: true, permissions: [] },
+  { id: "resources", label: "Resources", icon: BookOpen, route: "/resources", submenu: false, permissions: [] },
+  { id: "progress", label: "My Progress", icon: BarChart3, route: "/reports", submenu: false, permissions: ['dev'] },
 ];
 
 export function Navigation() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const {logout} = useAuth();
+  const {logout, permissions} = useAuth();
   const location = useLocation();
   const {unityActive} = useProgress();
 
@@ -44,7 +44,7 @@ export function Navigation() {
     [unityActive]
   );
 
-  let blocker = useBlocker(confirmNavigation);
+  const blocker = useBlocker(confirmNavigation);
 
   const handleConfirm = () => {
     (blocker.state=='blocked') ? blocker.proceed() : console.log('Blocker not available.');
@@ -101,7 +101,18 @@ export function Navigation() {
             <ul>
             {navigationItems.map((item) => {
               const Icon = item.icon;
+              let hasPermissions;
               
+              // Check if user has permissions to access that item
+              if (  Array.isArray(item.permissions) &&  item.permissions.length > 0 ) {
+                hasPermissions = item.permissions.some(role=>permissions.includes(role));
+              } else {
+                hasPermissions = true;
+              }
+
+              // Skip item if user doesn't have permissions to view
+              if(! hasPermissions) return null;
+
               // Associate a submenu as a prop of the menu item
               // Set click listener to fetch and render submenu when needed
 

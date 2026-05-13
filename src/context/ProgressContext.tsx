@@ -8,6 +8,8 @@ type ProgressContext = {
     unityComplete: boolean;
     surveyComplete: boolean;
     setSurveyComplete: (v:boolean)=>void;
+    welcomeComplete: boolean;
+    setWelcomeComplete: (v:boolean)=>void;
 };
 
 const ProgressContext = createContext<ProgressContext | null>(null);
@@ -21,6 +23,7 @@ export function ProgressProvider ({ children }: { children: React.ReactNode }) {
     const [unityActive, setUnityActive] = useState(false);
     const [unityComplete, setUnityComplete] = useState(false);
     const [surveyComplete, setSurveyComplete]  = useState(false);
+    const [welcomeComplete, setWelcomeComplete]  = useState(false);
     
     // Update unityActive based on the current url path
     const location = useLocation();
@@ -45,8 +48,10 @@ export function ProgressProvider ({ children }: { children: React.ReactNode }) {
             unityActive,
             unityComplete,
             surveyComplete,
+            welcomeComplete,
             setSurveyComplete,
-            setDidacticComplete
+            setDidacticComplete,
+            setWelcomeComplete,
         }}>
         {children}
     </ProgressContext.Provider>;

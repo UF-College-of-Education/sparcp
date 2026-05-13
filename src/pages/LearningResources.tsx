@@ -11,8 +11,6 @@ import {
   Clock,
   Users,
   MessageSquare,
-  Heart,
-  Search,
   ArrowRight
 } from "lucide-react";
 
