@@ -43,7 +43,7 @@ export function ClearGuide ({isCollapsed}: {isCollapsed: boolean}) {
 
             <Card 
                 id="ClearGuideCard" 
-                className={`w-96 max-h-full bg-white absolute z-40 top-8 left-0 transition-all duration-300  ${isOpen?  '-ml-2' :'-ml-96 opacity-0'} `}
+                className={`w-96 max-h-full bg-white absolute z-40 top-[15%] left-0 transition-all duration-300  ${isOpen?  '-ml-2' :'-ml-96 opacity-0'} `}
             >
                 <button
                     title="Close Clear Guide Card" 
