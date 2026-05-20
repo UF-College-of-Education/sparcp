@@ -33,7 +33,7 @@ export function WelcomeNewUser () {
     }, []);
 
     return (
-        <section className="px-12 py-20 pr-20 mt-6">
+        <section className="px-12 py-16 pr-20 mt-6">
             <div className="sparc-column w-full">
                 <Content components={mdxComponents}/>
                 <iframe 
@@ -47,7 +47,7 @@ export function WelcomeNewUser () {
                 </iframe>
                 
                 <div className='text-center'>
-                    <p className='m-4'>{preplayMessage}</p>
+                    <p className='my-4 mx-auto max-w-[960px] text-left'>{preplayMessage}</p>
                     {welcomeComplete ? 
                         <Button className="bg-yellow text-black border-2 border-yellow font-bold text-md hover:bg-white">
                             <Link to={ctaButtonLink}>{ctaButtonText}</Link>
