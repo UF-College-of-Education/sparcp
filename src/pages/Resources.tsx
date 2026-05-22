@@ -117,30 +117,30 @@ const videos: Video[] = [
   {
     id: 1,
     title: "Welcome Video",
-    description: "Parent worried about vaccine safety after reading online articles",
+    description: "Simulated Patient Educator Kennan DeGruccio, LSW provides an introduction to SPARC training method and the C-LEAR approach.",
     url: `https://vimeo.com/1183789256/58df34ea06?share=copy&fl=cl&fe=ci`,
     duration: "2:43",
-    skills: [],
+    skills: ["SPARC", "C-LEAR Approach"],
     host: "Vimeo",
     embedCode: '<iframe src="https://player.vimeo.com/video/1175286017?h=af884888a7&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" width="450" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Website Welcome Video"></iframe>'
   },
   {
     id: 2,
     title: "How to Talk to Parents About the HPV Vaccine: The C-LEAR Approach",
-    description: "",
+    description: "Learn how to use the C-LEAR Approach to discuss the HPV Vaccine with parents.",
     url: "https://vimeo.com/1185190523/e3adf950be?share=copy&fl=cl&fe=ci",
     duration: "26:05",
-    skills: ["Counsel", "Listen", "Empathize", "Answer", "Recommend", ],
+    skills: ["C-LEAR Approach", "Counsel", "Listen", "Empathize", "Answer", "Recommend", ],
     host: "Vimeo",
     embedCode: '<iframe src="https://player.vimeo.com/video/1185190523?h=e3adf950be&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Didactic Video (CC)"></iframe>'
   },
   {
     id: 3,
     title: "Skills Practice 1 Instructions",
-    description: "",
+    description: "Learn how you will interact with a simulated patient avatar to practice recommending the HPV Vaccine using the clear approach.",
     url: "https://vimeo.com/1188484197/3073e5f22e?share=copy&fl=cl&fe=ci",
     duration: "4:01",
-    skills: [],
+    skills: ['SPARC', 'AI'],
     host: "Vimeo",
     embedCode: '<iframe src="https://player.vimeo.com/video/1188484197?h=3073e5f22e&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="SPARC Skills Practice 1"></iframe>'
   }
