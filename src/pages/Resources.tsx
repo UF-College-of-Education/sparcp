@@ -177,12 +177,10 @@ export function Resources() {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="modules">C-LEAR Modules</TabsTrigger>
           <TabsTrigger value="videos">Videos</TabsTrigger>
-          <TabsTrigger value="resources">Additional Resources</TabsTrigger>
         </TabsList>
 
         <ClearModules modules={clearModules}></ClearModules>
         <VideoIndex videos={videos} ></VideoIndex>
-        <MoreResources resources={resourceListings} ></MoreResources>
 
       </Tabs>
     </div>
