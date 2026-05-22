@@ -59,8 +59,17 @@ export function Navigation() {
     }
   }
 
+  // Prevent Unity App from losing focus if menu or guide is clicked
+  const handleMenuMouseDown = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement | HTMLDivElement>) => {
+    if (unityActive) {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className={`bg-card relative border-r transition-all duration-300 md:h-screen ${isCollapsed ? "w-16 " : "w-64"}`}>
+    <div className={`bg-card relative border-r transition-all duration-300 md:h-screen ${isCollapsed ? "w-16 " : "w-64"}`} 
+      onMouseDown={handleMenuMouseDown}
+    >
       <div className={`p-2 border-b flex items-center justify-center transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"}`}>
         <div className={`flex items-center gap-0 ${isCollapsed ? 'h-auto' : 'h-20'}`}>
           

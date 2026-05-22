@@ -24,6 +24,15 @@ export function ClearModules({ modules }: ClearModuleProps) {
 
     const [selectedModule, setSelectedModule] = useState(modules[0]);
 
+    const handleDownloadClick = () => {
+      const link = document.createElement("a");
+      link.href = "/assets/C-LEAR _Pocket_Card_03-06-26.pdf";
+      link.download = "C-LEAR_Pocket_Card.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
     return (
         <TabsContent value="modules" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -94,7 +103,7 @@ export function ClearModules({ modules }: ClearModuleProps) {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2" onClick={handleDownloadClick}>
                       <Download className="w-4 h-4" />
                       Download Guide
                     </Button>
