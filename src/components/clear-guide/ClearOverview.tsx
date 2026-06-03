@@ -18,7 +18,7 @@ export default function ClearOverview () {
             <div className="mb-4">
                 <h3 className="font-semibold text-lg text-primary"><span className="underline text-blue">
                     <Sparkles className="bg-yellow inline text-white rounded-full p-1 mr-2 w-8 h-8"/>C</span>ounsel</h3>
-                <p className="pl-10">"We have a vaccine for 9-year-olds that prevents against six types of cancer. I recommend they get this safe vaccine today and then come back in 6 to 12 months to get the second dose."</p>
+                <p className="pl-10">"We have a vaccine for 9-10 year-olds that prevents against six types of cancer. I recommend they get this safe vaccine today and then come back in 6 to 12 months to get the second dose."</p>
             </div>
 
             <div className="mb-4">
