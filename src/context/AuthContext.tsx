@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { User } from '../types.ts';
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../lib/firebase.ts";
+import { auth, getUserData } from "../lib/firebase.ts";
+import type { DocumentData } from "firebase/firestore";
 
 type AuthContextType = {
     isLoggedIn: boolean;
     user: User | null;
+    permissions: string[];
     logout: () => void;
 };
 
@@ -34,13 +36,26 @@ function isTestMode() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const [user, setUser] = useState<User | null>(() => isTestMode() ? TEST_USER : null);
+    const [permissions, setPermissions] = useState<string[]>([]);
+
+    const fetchUserData = async (email: string) => {
+        try {
+            const data: DocumentData | false = await getUserData(email);
+            return data;
+        }
+        catch (error) {
+            console.log('Error fetching user data.', error);
+            return;
+        };
+    }    
 
     useEffect(() => {
         if (isTestMode()) return;
 
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (!firebaseUser) {
                 setUser(null);
+                setPermissions([]);
                 return;
             }
             const { email, emailVerified, displayName, uid, metadata } = firebaseUser;
@@ -54,6 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             setUser(user);
+
+            // Fetch and set user permissions
+            const userData: DocumentData | false | undefined = await fetchUserData(user.email);
+
+            if ( userData && userData.role && Array.isArray(userData.role) ) {
+                setPermissions(userData.role )
+            } else {
+                setPermissions([]);
+            }
+
         });
         return unsubscribe;
     }, []);
@@ -63,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn: user !== null, user, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn: user !== null, user, permissions, logout }}>
             {children}
         </AuthContext.Provider>
     );

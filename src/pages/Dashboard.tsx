@@ -2,7 +2,7 @@ import { Card } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
-import { MessageCircle, BookOpen, BarChart3, Clock, Award, User } from "lucide-react";
+import { MessageCircle, BookOpen, BarChart3, Clock, Award } from "lucide-react";
 
 interface DashboardProps {
   onStartNewSession?: () => void;

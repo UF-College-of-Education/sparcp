@@ -23,11 +23,12 @@ const CACHE_BUST = Date.now().toString(36);
 const SparcUnityPage: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const postToUnityRef = useRef<((payload: OutboundUnityMessage) => void) | null>(null);
+  /** Cleared when UNITY_READY fires so the iframe can receive clicks for WebGL mic gestures. */
+  const loaderFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [unityReady, setUnityReady] = useState(false);
-  const [lastEvent, setLastEvent] = useState<string>("");
   const [mediaStatus, setMediaStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [mediaError, setMediaError] = useState<string | null>(null);
-  const [loaderStatus, setLoaderStatus] = useState('loading');
+  const [loaderStatus, setLoaderStatus] = useState<"loading" | "complete">("loading");
 
   const handleRequestMedia = useCallback(async () => {
     setMediaStatus("requesting");
@@ -41,46 +42,91 @@ const SparcUnityPage: React.FC = () => {
     }
   }, []);
 
-  // On load, check if we already have mic permission (e.g. user granted earlier)
+  // On load, check mic permission state and auto-request if not yet decided.
   useEffect(() => {
-    if (typeof navigator?.permissions?.query !== "function") return;
-    navigator.permissions.query({ name: "microphone" as PermissionName }).then(
-      (status) => {
-        if (status.state === "granted") setMediaStatus("granted");
-      },
-      () => {}
-    );
+    async function initMic() {
+      // Try the Permissions API first to avoid an unnecessary getUserMedia prompt.
+      if (typeof navigator?.permissions?.query === "function") {
+        try {
+          const status = await navigator.permissions.query({ name: "microphone" as PermissionName });
+          if (status.state === "granted") {
+            setMediaStatus("granted");
+            return;
+          }
+          if (status.state === "denied") {
+            setMediaStatus("denied");
+            setMediaError("Microphone access was denied. Allow it in browser settings and reload.");
+            return;
+          }
+          // state === "prompt" — fall through to auto-request below.
+        } catch {
+          // Permissions API not supported — fall through to getUserMedia.
+        }
+      }
+      // Automatically request permission (shows the browser prompt once).
+      const result = await requestMediaInParent();
+      if (result.ok) {
+        setMediaStatus("granted");
+      } else {
+        setMediaStatus("denied");
+        setMediaError(result.error ?? "Permission denied");
+      }
+    }
+    initMic();
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoaderStatus('complete'), 10000);
-    return () => clearTimeout(timer);
+    loaderFallbackTimerRef.current = setTimeout(() => {
+      setLoaderStatus("complete");
+      loaderFallbackTimerRef.current = null;
+    }, 15000);
+    return () => {
+      if (loaderFallbackTimerRef.current) {
+        clearTimeout(loaderFallbackTimerRef.current);
+        loaderFallbackTimerRef.current = null;
+      }
+    };
   }, []);
+
+  // After React obtains mic permission, tell the Unity iframe to drop any stale stream only.
+  // Actual getUserMedia in the iframe must follow a user gesture on the canvas (clicks pass
+  // through the loading overlay via pointer-events: none).
+  useEffect(() => {
+    if (mediaStatus !== "granted") return;
+    const id = window.setTimeout(() => {
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: "REACT_MIC_GRANTED" },
+        window.location.origin
+      );
+    }, 500);
+    return () => window.clearTimeout(id);
+  }, [mediaStatus, unityReady]);
 
   // Handle messages FROM Unity (iframe → React)
   const handleMessage = useCallback((msg: InboundUnityMessage) => {
     const { type, data } = msg;
     switch (type) {
       case "UNITY_READY":
+        if (loaderFallbackTimerRef.current) {
+          clearTimeout(loaderFallbackTimerRef.current);
+          loaderFallbackTimerRef.current = null;
+        }
+        setLoaderStatus("complete");
         setUnityReady(Boolean((data as any)?.ready));
-        setLastEvent("UNITY_READY");
         break;
 
       case "UNITY_SESSION_EVENT":
         // Session progress / summary from Unity
         console.log("UNITY_SESSION_EVENT", data);
-        setLastEvent("UNITY_SESSION_EVENT");
         // You can optionally push this to React-side Firebase if desired
         break;
 
       case "UNITY_ANALYTICS_EVENT":
         console.log("UNITY_ANALYTICS_EVENT", data);
-        setLastEvent(`UNITY_ANALYTICS_EVENT: ${(data as any)?.eventName ?? ""}`);
         break;
 
       case "UNITY_ERROR":
         console.error("UNITY_ERROR", data);
-        setLastEvent(`UNITY_ERROR: ${(data as any)?.errorType ?? ""}`);
         break;
 
       case "UNITY_REQUEST_DATA":
@@ -108,12 +154,18 @@ const SparcUnityPage: React.FC = () => {
   }, []);
 
   const postToUnity = useUnityBridge(iframeRef, handleMessage);
-  postToUnityRef.current = postToUnity;
+  useEffect(() => {
+    postToUnityRef.current = postToUnity;
+  }, [postToUnity]);
 
   return (
     <div className="relative w-full h-page z-0">
-      {loaderStatus === 'loading' && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70">
+      {loaderStatus === "loading" && (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center bg-black/70"
+          style={{ pointerEvents: "none" }}
+          aria-hidden
+        >
           <p className="text-lg text-white font-900">Loading simulation...</p>
           <LoaderCircle className="w-12 h-12 text-yellow animate-spin m-4" />
         </div>
@@ -135,23 +187,13 @@ const SparcUnityPage: React.FC = () => {
               gap: 12,
             }}
           >
-            {mediaStatus === "idle" && (
-              <>
-                <span>Unity needs microphone access. Click to allow for this site.</span>
-                <button
-                  type="button"
-                  onClick={handleRequestMedia}
-                  style={{ padding: "6px 14px", cursor: "pointer", fontWeight: 600 }}
-                >
-                  Enable microphone
-                </button>
-              </>
+            {(mediaStatus === "idle" || mediaStatus === "requesting") && (
+              <span>Requesting microphone access… Allow the browser prompt to enable speech recognition.</span>
             )}
-            {mediaStatus === "requesting" && <span>Requesting access… Check the browser prompt.</span>}
             {mediaStatus === "denied" && (
               <>
-                <span>Access denied or unavailable. {mediaError && `(${mediaError})`}</span>
-                <button type="button" onClick={handleRequestMedia} style={{ padding: "6px 14px", cursor: "pointer" }}>
+                <span>⚠️ Microphone access denied — speech recognition will not work. {mediaError && `(${mediaError})`} Allow microphone in your browser settings and reload, or:</span>
+                <button type="button" onClick={handleRequestMedia} style={{ padding: "6px 14px", cursor: "pointer", marginLeft: 8 }}>
                   Try again
                 </button>
               </>

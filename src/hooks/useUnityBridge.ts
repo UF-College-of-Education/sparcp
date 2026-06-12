@@ -17,6 +17,9 @@ export default function useUnityBridge(
             if (event.origin !== window.location.origin) return;
             if (!event.data || typeof event.data !== "object") return;
             if (!event.data.type) return;
+            // Handled by inline Firebase bridge in index.html (same window); avoid React "Unknown" noise.
+            const t = (event.data as { type: string }).type;
+            if (t === "UNITY_FIREBASE_USER" || t === "UNITY_SESSION_CREATED") return;
             onMessageRef.current(event.data);
         };
         window.addEventListener("message", handler);

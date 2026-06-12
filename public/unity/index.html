@@ -1,9 +1,257 @@
 <!DOCTYPE html>
+<!--
+  Unity WebGL player only (this document loads inside <iframe src="/unity/index.html">).
+  The Firebase session bridge (window.__unitySession, UNITY_FIREBASE_USER, __reactFirebaseUid)
+  runs on the React parent — see repo root index.html → dist/index.html, not here.
+-->
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Permissions-Policy" content="microphone=(self), fullscreen=(self)" />
     <title>Unity Web Player | SPARC-P</title>
+    <!-- Sync mic shim MUST run before any other script (incl. module) so FMOD/Unity never sees unpatched getUserMedia. -->
+    <script>
+      (function () {
+        var origWebkit = navigator.webkitGetUserMedia && navigator.webkitGetUserMedia.bind(navigator);
+
+        if (!navigator.mediaDevices) {
+          navigator.mediaDevices = {};
+        }
+        if (!navigator.mediaDevices.getUserMedia) {
+          var legacy = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+          if (legacy) {
+            navigator.mediaDevices.getUserMedia = function (constraints) {
+              return new Promise(function (resolve, reject) {
+                legacy.call(navigator, constraints, resolve, reject);
+              });
+            };
+          }
+        }
+        if (!navigator.mediaDevices.getUserMedia) {
+          console.warn('[SPARC] No getUserMedia; mic patch skipped');
+          return;
+        }
+
+        var _stream  = null;
+        var _waiters = [];
+        var _opening = false;
+        var _orig    = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+        /** MediaStream acquired on a user gesture with no Unity waiter yet — Unity often calls getUserMedia next frame. */
+        var _heldGestureStream = null;
+        var _heldGestureTimer  = null;
+
+        function streamLive(s) {
+          try {
+            return !!(s && s.getTracks && s.getTracks().some(function (t) { return t.readyState === 'live'; }));
+          } catch (_e) {
+            return false;
+          }
+        }
+
+        function releaseStream() {
+          if (!_stream) return;
+          try {
+            _stream.getTracks().forEach(function (t) { t.stop(); });
+          } catch (_e) {}
+          _stream = null;
+          window._sparcMicStream = null;
+        }
+
+        function releaseHeldGestureStream() {
+          if (_heldGestureTimer) {
+            clearTimeout(_heldGestureTimer);
+            _heldGestureTimer = null;
+          }
+          if (!_heldGestureStream) return;
+          try {
+            _heldGestureStream.getTracks().forEach(function (t) { t.stop(); });
+          } catch (_e) {}
+          _heldGestureStream = null;
+        }
+
+        /** If Unity queued getUserMedia while a capture was in flight, openMic() returned early — drain here. */
+        function scheduleOpenMicIfWaiters() {
+          if (!_waiters.length) return;
+          queueMicrotask(function () {
+            if (_waiters.length && !_opening) openMic();
+          });
+        }
+
+        /** First queued caller's constraints (Recognissimo Estrada passes deviceId/channelCount). Default { audio: true }. */
+        function constraintsForCurrentOpen() {
+          if (!_waiters.length) return { audio: true };
+          var c = _waiters[0].constraints;
+          if (c && typeof c === 'object' && c.audio) return c;
+          return { audio: true };
+        }
+
+        function openMic() {
+          if (_opening) return;
+          // Unity WebGL often calls getUserMedia one frame after the click — satisfy waiters from a
+          // gesture-time buffer instead of requiring a second user activation.
+          if (_waiters.length > 0 && _heldGestureStream && streamLive(_heldGestureStream)) {
+            var batchHold = _waiters.splice(0);
+            var hs = _heldGestureStream;
+            _heldGestureStream = null;
+            if (_heldGestureTimer) {
+              clearTimeout(_heldGestureTimer);
+              _heldGestureTimer = null;
+            }
+            batchHold.forEach(function (w) { w.resolve(hs); });
+            console.log(
+              '[SPARC] mic ready — resolved',
+              batchHold.length,
+              'queued caller(s) from gesture-hold (same click, delayed FMOD)'
+            );
+            scheduleOpenMicIfWaiters();
+            return;
+          }
+          // One live hold is enough; window+document used to fire many events per physical click.
+          if (!_waiters.length && _heldGestureStream && streamLive(_heldGestureStream))
+            return;
+          if (_stream) releaseStream();
+          _opening = true;
+          _orig(constraintsForCurrentOpen())
+            .then(function (stream) {
+              // Splice BEFORE _opening = false so another openMic cannot start a second concurrent
+              // getUserMedia while we still hold this stream. Unity may push a waiter in the same
+              // gesture tick after our "empty batch" path started — without drain, that waiter was stranded.
+              var batch = _waiters.splice(0);
+              if (batch.length === 0) {
+                releaseHeldGestureStream();
+                _heldGestureStream = stream;
+                _heldGestureTimer = setTimeout(function () {
+                  _heldGestureTimer = null;
+                  if (_heldGestureStream === stream && streamLive(stream)) {
+                    try {
+                      stream.getTracks().forEach(function (t) { t.stop(); });
+                    } catch (_e2) {}
+                    console.log('[SPARC] gesture-hold mic expired unused (click canvas again)');
+                  }
+                  if (_heldGestureStream === stream) _heldGestureStream = null;
+                }, 12000);
+                console.log('[SPARC] mic gesture-hold buffered (Unity getUserMedia often arrives next frame)');
+                _opening = false;
+                scheduleOpenMicIfWaiters();
+                return;
+              }
+              releaseHeldGestureStream();
+              batch.forEach(function (w) { w.resolve(stream); });
+              // Unity/FMOD keeps its MediaStream reference; do not retain _stream for reuse — a later
+              // Microphone.Start otherwise hits a consumed stream → "access blocked" / empty AudioClip.
+              _stream = null;
+              window._sparcMicStream = null;
+              console.log(
+                '[SPARC] mic ready — resolved',
+                batch.length,
+                'queued caller(s); cache cleared for next session'
+              );
+              _opening = false;
+              scheduleOpenMicIfWaiters();
+            })
+            .catch(function (err) {
+              releaseHeldGestureStream();
+              var denied = _waiters.splice(0);
+              denied.forEach(function (w) {
+                try {
+                  w.reject(err);
+                } catch (_e) {}
+              });
+              _opening = false;
+              console.warn('[SPARC] mic not ready yet:', err && err.message, '(retry on user interaction)');
+              scheduleOpenMicIfWaiters();
+            });
+        }
+
+        /** Parent mic permission resolved — drop shim cache only. Do NOT clear gesture-hold: postMessage is
+            not a user gesture and Unity may consume the hold on the next frame after this message. */
+        function forceMicRetryFromParent() {
+          releaseStream();
+          _opening = false;
+        }
+
+        navigator.mediaDevices.getUserMedia = function (constraints) {
+          if (!constraints || !constraints.audio || constraints.video)
+            return _orig(constraints);
+          // Always queue + openMic so the hold is handed off only with a waiter (avoids stray Unity
+          // probes eating the buffer before Microphone.Start runs).
+          if (_stream) releaseStream();
+          return new Promise(function (resolve, reject) {
+            _waiters.push({ resolve: resolve, reject: reject, constraints: constraints });
+            openMic();
+          });
+        };
+
+        if (origWebkit) {
+          navigator.webkitGetUserMedia = function (constraints, success, error) {
+            if (!constraints || !constraints.audio || constraints.video)
+              return origWebkit(constraints, success, error);
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+          };
+        }
+
+        function resumeWebAudio() {
+          if (typeof WEBAudio !== 'undefined' && WEBAudio.audioContext &&
+              WEBAudio.audioContext.state === 'suspended') {
+            WEBAudio.audioContext.resume();
+          }
+        }
+
+        /** Canvas / keyboard gestures — prime gesture-hold (getUserMedia on real user activation). */
+        function onCanvasMicGesture() {
+          if (_stream && !streamLive(_stream)) {
+            releaseStream();
+            _opening = false;
+          }
+          resumeWebAudio();
+          openMic();
+        }
+
+        function onWindowKeydownMic() {
+          resumeWebAudio();
+          var c = document.getElementById('unity-canvas');
+          if (!c || document.activeElement !== c) return;
+          openMic();
+        }
+
+        /** Tab focus / visible: resume WebGL audio only; open mic if Unity is already waiting. */
+        function onVisibleOrFocus() {
+          resumeWebAudio();
+          if (_waiters.length > 0) openMic();
+        }
+
+        function bindMicGestureSources() {
+          var opt = { passive: true, capture: true };
+          var c = document.getElementById('unity-canvas');
+          if (c) {
+            ['pointerdown', 'touchstart', 'click'].forEach(function (e) {
+              c.addEventListener(e, onCanvasMicGesture, opt);
+            });
+          }
+          window.addEventListener('keydown', onWindowKeydownMic, opt);
+        }
+        if (document.readyState === 'loading')
+          document.addEventListener('DOMContentLoaded', bindMicGestureSources);
+        else
+          bindMicGestureSources();
+
+        window.addEventListener('focus', onVisibleOrFocus);
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') onVisibleOrFocus();
+        });
+
+        window.addEventListener('message', function (ev) {
+          if (!ev.origin || ev.origin !== window.location.origin) return;
+          if (!ev.data || ev.data.type !== 'REACT_MIC_GRANTED') return;
+          console.log('[SPARC] REACT_MIC_GRANTED — releasing stale iframe capture (getUserMedia on next iframe click)');
+          forceMicRetryFromParent();
+        });
+
+        // Do NOT call openMic() at startup. REACT_MIC_GRANTED clears _stream only — not gesture-hold.
+      })();
+    </script>
+    <script type="module" src="Build/firebase-web.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1" style="width: 1920px; height: 1080px; background: #231F20"></canvas>

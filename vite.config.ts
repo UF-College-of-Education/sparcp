@@ -14,7 +14,16 @@ export default defineConfig(({ command }) => ({
     },
   },
   assetsInclude: ['**/*.txt'],
+  // Explicit microphone/fullscreen for same-origin Unity iframe + WebGL (PubApp/nginx should mirror — see UNITY-DEPLOYMENT-GUIDE.md).
   server: {
     port: 5173,
+    headers: {
+      'Permissions-Policy': 'microphone=(self), fullscreen=(self)',
+    },
+  },
+  preview: {
+    headers: {
+      'Permissions-Policy': 'microphone=(self), fullscreen=(self)',
+    },
   },
 }))

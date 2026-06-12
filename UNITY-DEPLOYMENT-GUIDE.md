@@ -66,11 +66,11 @@ This guide documents how to deploy Unity WebGL builds to the SPARC-P React appli
 1. **Copy Unity build files** to `public/unity/` directory:
    - Replace `Build/*.loader.js`
    - Replace `Build/*.framework.js`
-   - Replace `index.html`
+   - Merge changes into `index.html` (see **Preserving the microphone shell** — merge Firebase URLs and loader from Unity’s export into this repo’s shell; do not replace with Unity’s bare template alone)
    - Update `StreamingAssets/` if changed
    - Update `TemplateData/` if changed
 
-2. **Update `public/unity/index.html`** with Firebase URLs:
+2. **Update `public/unity/index.html`** with Firebase URLs (if `.wasm` / `.data` are hosted off-repo):
 
    ```javascript
    createUnityInstance(document.querySelector("#unity-canvas"), {
@@ -98,6 +98,7 @@ This guide documents how to deploy Unity WebGL builds to the SPARC-P React appli
    ```
 
    **Key Points**:
+   - When Unity regenerates `index.html`, **re-apply** the blocks documented in **Preserving the microphone shell** (Permissions-Policy meta + `getUserMedia` patch) if they are missing.
    - Replace `dataUrl` with new Firebase `.data` URL
    - Replace `codeUrl` with new Firebase `.wasm` URL
    - Update `frameworkUrl` filename if Unity changed the hash
@@ -168,22 +169,73 @@ If deploying to a new URL (e.g., production domain, preview branches):
    }
    ```
 
+## Preserving the microphone shell (`public/unity/index.html`)
+
+Unity’s WebGL export overwrites `index.html` with a minimal template. This repo **extends** that file so the player works when embedded in the React app (iframe) and when using **PubApp Whisper** (Unity still captures audio via `Microphone.Start` in the browser).
+
+After every Unity export merge, confirm **`public/unity/index.html`** still contains:
+
+1. **Permissions-Policy meta** (in `<head>`), for example:
+   ```html
+   <meta http-equiv="Permissions-Policy" content="microphone=(self), fullscreen=(self)" />
+   ```
+2. **The SPARC `getUserMedia` patch** (inline `<script>` before `createUnityInstance`): queues audio-only `getUserMedia` until permission/user-gesture, resumes `WEBAudio` on pointer/key/touch, and logs `[SPARC] mic ready — resolved …` when callers are unblocked.
+
+If either block is missing, Chrome may show `Can't create SoundClip from microphone because access is blocked by user` and `AudioClip.GetData failed; AudioClip Microphone contains no data` when the sim runs inside an iframe—even though Whisper on the server is healthy.
+
+The canonical copy lives in **`public/unity/index.html`** in git; do not rely on a local `dist/` folder alone.
+
+## Permissions-Policy (HTTP headers and hosting)
+
+Browsers can block microphone access in embedded WebGL if the **top-level** or **document** policy is too strict (e.g. `Permissions-Policy: microphone=()`).
+
+**Check (Chrome):** DevTools → Network → select the HTML document for the React app and for `/unity/index.html` → Response Headers. If `microphone` is denied for your origin, relax it on the host.
+
+**This repo sets same-origin-friendly defaults where possible:**
+
+| Location | Purpose |
+|----------|---------|
+| [`index.html`](index.html) | SPA shell: Permissions-Policy meta + **Firebase parent↔iframe bridge** (inline script); emitted as `dist/index.html` |
+| [`public/unity/index.html`](public/unity/index.html) | Same meta on the Unity player page |
+| [`vite.config.ts`](vite.config.ts) | `server.headers` and `preview.headers` for local `vite` / `vite preview` |
+| [`vercel.json`](vercel.json) | `Permissions-Policy` response header for Vercel deployments |
+
+**PubApp / nginx example** (adjust server block; do not set `microphone=()` unless intentional):
+
+```nginx
+add_header Permissions-Policy "microphone=(self), fullscreen=(self)" always;
+```
+
+**Apache example:**
+
+```apache
+Header set Permissions-Policy "microphone=(self), fullscreen=(self)"
+```
+
+If a stricter **server** header is already set, it typically overrides or combines with meta tags—fix the server configuration for training routes.
+
 ## React Integration
 
 The Unity build is loaded via an iframe in the React application:
 
-- **Component**: `src/components/pages/SparcUnityPage.tsx`
-- **Unity Page**: `public/unity/index.html` (served at `/unity/index.html`)
-- **Communication**: PostMessage API for React ↔ Unity messaging
+- **Component**: [`src/pages/SparcUnityPage.tsx`](src/pages/SparcUnityPage.tsx)
+- **React / SPA shell**: repo root [`index.html`](index.html) → **`dist/index.html`** after `vite build` (includes the inline **Firebase session bridge**: `window.__unitySession`, `UNITY_FIREBASE_USER` / `UNITY_SESSION_CREATED` listener, `window.__reactFirebaseUid`, iframe `postMessage` sync). That script must live on the **parent** page that embeds Unity, not inside the iframe document.
+- **Unity Page** (iframe only): `public/unity/index.html` (served at `/unity/index.html`) — loads `Build/firebase-web.js` for Unity-side Firebase; it does not duplicate the parent bridge.
+- **Communication**: PostMessage API for React ↔ Unity messaging (`useUnityBridge`)
 
 The iframe is configured with:
+
 ```html
 <iframe
   src="/unity/index.html"
-  title="SPARC Unity WebGL"
-  allow="microphone; camera; fullscreen"
+  title="Interactive training session"
+  allow="microphone; fullscreen; local-network"
 />
 ```
+
+(`local-network` is included for environments that require [Private Network Access](https://developer.chrome.com/blog/local-network-access) when calling on-prem backends; add `camera` to `allow` only if the sim uses the camera.)
+
+The training page dismisses the **“Loading simulation…”** overlay as soon as Unity posts **`UNITY_READY`**, with a **15s fallback** if that message never arrives, so users can click the canvas and satisfy WebGL mic gesture requirements without waiting on a fixed delay.
 
 The React App contains a messaging system for sending messages to and receiving messages from the Unity app. 
 
@@ -201,19 +253,27 @@ Currently it is set up to handle the following events:
 * UNITY_ERROR
 * UNITY_REQUEST_DATA
 
-You can see info about the expected payload in the `src/types.ts` file under theIncomingUnityMessages type. If adding a new type of message, you will need to add a new case to the handleMessage callback and add the expected data shape as a clause in the IncomingUnityMessages type.
+You can see info about the expected payload in the `src/types.ts` file under the `IncomingUnityMessages` type. If adding a new type of message, you will need to add a new case to the `handleMessage` callback and add the expected data shape as a clause in the `IncomingUnityMessages` type.
 
 ### Message From React to Unity
 
 Messages to the Unity app are sent via the custom useUnityBridge hook. This hook expects a reference to the iframe containing the Unity app in React and a handler function to call when messages are received.
 
-In the SparcUnityPage, we bind the Unity bridge to a postToUnity variable. You can then send messages to Unity by invoking postToUnity(). This value is what gets passed to Unity. Just be sure only to invoke it after line 102 where it's defined.
-
-``` postToUnity( message ) ```
+In the SparcUnityPage, we bind the Unity bridge to a `postToUnity` function returned from `useUnityBridge`. You can send messages to Unity by invoking `postToUnity(...)`. Invoke it only after the hook has been initialized (after the `useUnityBridge` call in the component body).
 
 Like with the inbound messages, the message should follow the format defined in the OutboundUnityMessage type in `src/types.ts`. you should update the OutboundUnityMessage type definition according to fit the data you want to send. 
 
 ## Troubleshooting
+
+### Error / warning: `Microphone contains no data` or `access is blocked by user` (WebGL in iframe)
+
+**Cause**: Browser blocked `getUserMedia` / Unity `Microphone` for the iframe (policy, missing `allow`, missing shell patch, or mic starting before user interaction).
+
+**Solution**:
+1. Confirm **`public/unity/index.html`** in the deployed build still includes the **Permissions-Policy** meta and **SPARC `getUserMedia` patch** (see [Preserving the microphone shell](#preserving-the-microphone-shell-publicunityindexhtml)).
+2. Confirm the React iframe has `allow="microphone; ..."` (see [`src/pages/SparcUnityPage.tsx`](src/pages/SparcUnityPage.tsx)).
+3. Inspect **Permissions-Policy** response headers on the live site; remove `microphone=()` style lockdown for training URLs (see [Permissions-Policy](#permissions-policy-http-headers-and-hosting)).
+4. Open `/unity/index.html` in a **top-level tab**: if the mic works there but not in the iframe, focus on iframe `allow` and parent policy.
 
 ### Error: `Failed to load resource: 404`
 
